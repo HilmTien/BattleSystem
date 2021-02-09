@@ -7,6 +7,11 @@ import console
 console.clear()
 print('hello, world!')
 
+a = 10
+
+if a == 10:
+	print("works")
+
 for i in range(10):
 	print(i)
 
@@ -17,3 +22,4 @@ def rainbow(Farger):
 
 
 rainbow(FargeListe)
+
