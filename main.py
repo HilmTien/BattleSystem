@@ -7,7 +7,7 @@ import console
 console.clear()
 print('hello, world!')
 
-a = 10
+a = 20
 
 if a == 10:
 	print("works")
