@@ -17,6 +17,7 @@ playablecharacters = [{
 	'ATK': 60,
 	'DEF': 45,
 	'SPE': 100,
+	'CRITrate': 10,
 	'attacks': {
 		'attack1': (80, 90, 'Normal Attack'), # (atk, accuracy), senere implement element!
 		'attack2': (90, 80)
@@ -29,6 +30,7 @@ playablecharacters = [{
 	'ATK': 30,
 	'DEF': 60,
 	'SPE': 80,
+	'CRITrate': 0,
 	'attacks': {
 		'attack1': (80, 90, 'Normal Attack'),
 		'attack2': (90, 80)
@@ -43,7 +45,8 @@ antallCharacters = len(playablecharacters)
 # Velger en tilfeldig karakter for hver spiller
 player1 = playablecharacters[random.randint(0,antallCharacters-1)] 
 player2 = playablecharacters[random.randint(0,antallCharacters-1)]
-
+while player2 == player1:
+	player2 = playablecharacters[random.randint(0,antallCharacters-1)]
 
 
 #
@@ -113,19 +116,28 @@ class mainScene(scene.Scene):
 		
 		if 100 < touch.location.x < 250 and 100 < touch.location.y < 200: #Første black box eller attack
 			accrng = random.randint(1, 100)
+			critrng = random.randint(1,100)
 			
 			# Sjekker om det er P2 sin tur
 			if self.currentMover == 2:
 				if accrng < player2['attacks']['attack1'][1]: #Sjekker accuracy
-					player1['HP'] -= DMGcalc(player2, player1, 'attack1') #Dealer damage til P1
+					if critrng <= player2['CRITrate']:						
+						player1['HP'] -= DMGcalc(player2, player1, 'attack1')*2 #Dealer damage til P1
+					else:
+						player1['HP'] -= DMGcalc(player2, player1, 'attack1')
 				else:
 					pass
 				#Bytter tur tilbake til P1
 				self.currentMover = 1
 			
+			# Spiller om det er P1 sin tur
 			else:				
 				if accrng < player1['attacks']['attack1'][1]:
-					player2['HP'] -= DMGcalc(player1, player2, 'attack1')
+					if critrng <= player1['CRITrate']:
+						player2['HP'] -= DMGcalc(player1, player2, 'attack1')*2
+					
+					else:	
+						player2['HP'] -= DMGcalc(player1, player2, 'attack1')
 					#Dealer damage til P2
 				else:
 					pass
