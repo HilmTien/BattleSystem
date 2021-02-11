@@ -40,14 +40,12 @@ playablecharacters = [{
 #
 # Init
 #
+
 # Viser antallet spillbare karakterer
 antallCharacters = len(playablecharacters)
 # Velger en tilfeldig karakter for hver spiller
-player1 = playablecharacters[random.randint(0,antallCharacters-1)] 
-player2 = playablecharacters[random.randint(0,antallCharacters-1)]
-while player2 == player1:
-	player2 = playablecharacters[random.randint(0,antallCharacters-1)]
-
+player1 = dict(playablecharacters[random.randint(0,antallCharacters-1)])
+player2 = dict(playablecharacters[random.randint(0,antallCharacters-1)])
 
 #
 # FUNKSJONER (F.EKS. BATTLE MECHANICS)
