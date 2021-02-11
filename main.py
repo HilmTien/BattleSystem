@@ -17,6 +17,7 @@ playablecharacters = [{
 	'ATK': 60,
 	'DEF': 45,
 	'SPE': 100,
+	'CRITrate': 10,
 	'attacks': {
 		'attack1': (80, 90, 'Normal Attack'), # (atk, accuracy), senere implement element!
 		'attack2': (90, 80)
@@ -29,6 +30,7 @@ playablecharacters = [{
 	'ATK': 30,
 	'DEF': 60,
 	'SPE': 80,
+	'CRITrate': 0,
 	'attacks': {
 		'attack1': (80, 90, 'Normal Attack'),
 		'attack2': (90, 80)
@@ -38,15 +40,33 @@ playablecharacters = [{
 #
 # Init
 #
-
-player1 = playablecharacters[0]
-player2 = playablecharacters[1]
-
+# Viser antallet spillbare karakterer
+antallCharacters = len(playablecharacters)
+# Velger en tilfeldig karakter for hver spiller
+player1 = playablecharacters[random.randint(0,antallCharacters-1)] 
+player2 = playablecharacters[random.randint(0,antallCharacters-1)]
+while player2 == player1:
+	player2 = playablecharacters[random.randint(0,antallCharacters-1)]
 
 
 #
 # FUNKSJONER (F.EKS. BATTLE MECHANICS)
 #
+
+# Kalkulerer hvem som starter utifra fart
+def SPEcalc(player, opponent):
+	if player['SPE'] > opponent['SPE']:
+		PlayerMove = 1
+	
+	elif player['SPE'] < opponent['SPE']:
+		PlayerMove = 2
+	
+	else:
+		PlayerMove = random.randint(1,2)
+	
+	return PlayerMove
+	
+
 
 def DMGcalc(player, opponent, attack): # player og opponent er i dictionary formatet importert fra playablecharacters
 	return (player['ATK']/opponent['DEF']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
@@ -62,6 +82,7 @@ def hppercentage(player):
 #
 
 class mainScene(scene.Scene):
+	currentMover = SPEcalc(player1, player2)
 	def setup(self):
 		self.background_color = '#ffffff'
 		scene.SpriteNode(player1['sprite'], position=(150, 600), parent=self, scale=2)
@@ -88,15 +109,41 @@ class mainScene(scene.Scene):
 		# Attack #1 button
 		scene.fill("#000")
 		scene.rect(100, 100, 150, 100)
+		
+		
 	
-	def touch_began(self, touch):
+	def touch_began(self, touch):				
 		
 		if 100 < touch.location.x < 250 and 100 < touch.location.y < 200: #Første black box eller attack
 			accrng = random.randint(1, 100)
-			if accrng < player1['attacks']['attack1'][1]:
-				player1['HP'] -= DMGcalc(player1, player2, 'attack1')
-			else:
-				pass
+			critrng = random.randint(1,100)
+			
+			# Sjekker om det er P2 sin tur
+			if self.currentMover == 2:
+				if accrng < player2['attacks']['attack1'][1]: #Sjekker accuracy
+					if critrng <= player2['CRITrate']:						
+						player1['HP'] -= DMGcalc(player2, player1, 'attack1')*2 #Dealer damage til P1
+					else:
+						player1['HP'] -= DMGcalc(player2, player1, 'attack1')
+				else:
+					pass
+				#Bytter tur tilbake til P1
+				self.currentMover = 1
+			
+			# Spiller om det er P1 sin tur
+			else:				
+				if accrng < player1['attacks']['attack1'][1]:
+					if critrng <= player1['CRITrate']:
+						player2['HP'] -= DMGcalc(player1, player2, 'attack1')*2
+					
+					else:	
+						player2['HP'] -= DMGcalc(player1, player2, 'attack1')
+					#Dealer damage til P2
+				else:
+					pass
+				#Bytter tur tilbake til P2
+				self.currentMover = 2
+			
 		
 		# Dead check
 		
