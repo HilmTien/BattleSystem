@@ -47,6 +47,12 @@ antallCharacters = len(playablecharacters)
 player1 = dict(playablecharacters[random.randint(0,antallCharacters-1)])
 player2 = dict(playablecharacters[random.randint(0,antallCharacters-1)])
 
+attackboxsizex, attackboxsizey = (200, 100) # Universal størrelse på attackbox
+attack1x, attack1y = (56, 56) # Koordinater på bottomleft corner av boxene
+attack2x, attack2y = (200+56+56, 56)
+attack3x, attack3y = (200+200+56+56+56, 56)
+attack4x, attack4y = (200+200+200+56+56+56+56, 56)
+
 #
 # FUNKSJONER (F.EKS. BATTLE MECHANICS)
 #
@@ -85,6 +91,8 @@ class mainScene(scene.Scene):
 		self.background_color = '#ffffff'
 		scene.SpriteNode(player1['sprite'], position=(150, 600), parent=self, scale=2)
 		scene.SpriteNode(player2['sprite'], position=(800, 600), parent=self, scale=2)
+		
+		self.playerturn = scene.LabelNode("(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name']), font=('Avenir', 25), color='#000', position=(130, 750), parent=self)
 	
 	def draw(self):
 		
@@ -104,9 +112,17 @@ class mainScene(scene.Scene):
 		scene.fill("#4cd658")
 		scene.rect(760, 510, hppercentage(player2), 30)
 		
-		# Attack #1 button
+		# Attack #1-4 button
 		scene.fill("#000")
-		scene.rect(100, 100, 150, 100)
+		scene.rect(attack1x, attack1y, attackboxsizex, attackboxsizey)
+		scene.rect(attack2x, attack2y, attackboxsizex, attackboxsizey)
+		scene.rect(attack3x, attack3y, attackboxsizex, attackboxsizey)
+		scene.rect(attack4x, attack4y, attackboxsizex, attackboxsizey)
+		
+		# Attack text
+		
+		if self.currentMover == 1:
+			self.attack1label = scene.LabelNode(player1['attacks']['attack1'][2], font=('Avenir', 20), color='#fff', position=(175, 150), parent=self)
 		
 		
 	
@@ -127,6 +143,7 @@ class mainScene(scene.Scene):
 					pass
 				#Bytter tur tilbake til P1
 				self.currentMover = 1
+				self.playerturn.text = "(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
 			
 			# Spiller om det er P1 sin tur
 			else:				
@@ -141,7 +158,7 @@ class mainScene(scene.Scene):
 					pass
 				#Bytter tur tilbake til P2
 				self.currentMover = 2
-			
+				self.playerturn.text = "(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
 		
 		# Dead check
 		
