@@ -86,7 +86,9 @@ def hppercentage(player):
 #
 
 class mainScene(scene.Scene):
+	# Setter opp variabler som funksjonene skal arve
 	currentMover = SPEcalc(player1, player2)
+	Game_Over = False
 	def setup(self):
 		self.background_color = '#ffffff'
 		scene.SpriteNode(player1['sprite'], position=(150, 600), parent=self, scale=2)
@@ -137,49 +139,53 @@ class mainScene(scene.Scene):
 	def touch_began(self, touch):				
 		
 		self.attackmissedtext.text = ''
-		
-		if attack1x < touch.location.x < attack1x+attackboxsizex and attack1y < touch.location.y < attack1y+attackboxsizey: #Første black box eller attack
-			accrng = random.randint(1, 100)
-			critrng = random.randint(1, 100)
-			
-			# Sjekker om det er P2 sin tur
-			if self.currentMover == 2:
-				if accrng < player2['attacks']['attack1'][1]: #Sjekker accuracy
-					if critrng <= player2['CRITrate']:						
-						player1['HP'] -= DMGcalc(player2, player1, 'attack1')*2 #Dealer damage til P1
+		# Deaktiverer Normal Attack hvis en av spillerene er døde
+		if self.Game_Over == False:
+			if attack1x < touch.location.x < attack1x+attackboxsizex and attack1y < touch.location.y < attack1y+attackboxsizey: #Første black box eller attack
+				accrng = random.randint(1, 100)
+				critrng = random.randint(1, 100)
+				
+				# Sjekker om det er P2 sin tur
+				if self.currentMover == 2:
+					if accrng < player2['attacks']['attack1'][1]: #Sjekker accuracy
+						if critrng <= player2['CRITrate']:						
+							player1['HP'] -= DMGcalc(player2, player1, 'attack1')*2 #Dealer damage til P1
+						else:
+							player1['HP'] -= DMGcalc(player2, player1, 'attack1')
 					else:
-						player1['HP'] -= DMGcalc(player2, player1, 'attack1')
-				else:
-					self.attackmissedtext.text = '(Player {}) {} missed!'.format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
-				#Bytter tur tilbake til P1
-				self.currentMover = 1
-				self.playerturn.text = "(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
-			
-			# Spiller om det er P1 sin tur
-			else:				
-				if accrng < player1['attacks']['attack1'][1]:
-					if critrng <= player1['CRITrate']:
-						player2['HP'] -= DMGcalc(player1, player2, 'attack1')*2
-					else:	
-						player2['HP'] -= DMGcalc(player1, player2, 'attack1')
-					#Dealer damage til P2
-				else:
-					self.attackmissedtext.text = '(Player {}) {} missed!'.format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
-				#Bytter tur tilbake til P2
-				self.currentMover = 2
-				self.playerturn.text = "(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+						self.attackmissedtext.text = '(Player {}) {} missed!'.format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+					#Bytter tur tilbake til P1
+					self.currentMover = 1
+					self.playerturn.text = "(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+				
+				# Spiller om det er P1 sin tur
+				else:				
+					if accrng < player1['attacks']['attack1'][1]:
+						if critrng <= player1['CRITrate']:
+							player2['HP'] -= DMGcalc(player1, player2, 'attack1')*2
+						else:	
+							player2['HP'] -= DMGcalc(player1, player2, 'attack1')
+						#Dealer damage til P2
+					else:
+						self.attackmissedtext.text = '(Player {}) {} missed!'.format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+					#Bytter tur tilbake til P2
+					self.currentMover = 2
+					self.playerturn.text = "(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
 		
 		# Dead check
 		
 		if player1['HP'] <= 0:
 			scene.fill("#fff")
 			scene.rect(0, 0, 2000, 2000)
-			self.wintext = scene.LabelNode('Player 2 wins', font=('Avenir', 150), color='#000', position=(self.size.w/2, self.size.h/2), parent=self)
+			# Signaliserer at et av spillerene er døde
+			self.Game_Over = True
+			self.wintext = scene.LabelNode('{} (Player 1) wins'.format(player2['name']), font=('Avenir', 110), color='#000', position=(self.size.w/2, self.size.h/2), parent=self)
 			sys.exit()
 		if player2['HP'] <= 0:
 			scene.fill("#fff")
 			scene.rect(0, 0, 2000, 2000)
-			self.wintext = scene.LabelNode('Player 1 wins', font=('Avenir', 150), color='#000', position=(self.size.w/2, self.size.h/2), parent=self)
+			self.Game_Over = True
+			self.wintext = scene.LabelNode('{} (Player 1) wins'.format(player1['name']), font=('Avenir', 110), color='#000', position=(self.size.w/2, self.size.h/2), parent=self)
 			sys.exit()
 	
 
