@@ -17,7 +17,7 @@ playablecharacters = [{
 	'ATK': 60,
 	'DEF': 45,
 	'SPE': 100,
-	'CRITrate': 10,
+	'CRITrate': 15,
 	'attacks': {
 		'attack1': (80, 90, 'Normal Attack'), # (atk, accuracy), senere implement element!
 		'attack2': (90, 80)
@@ -49,9 +49,9 @@ player2 = dict(playablecharacters[random.randint(0,antallCharacters-1)])
 
 attackboxsizex, attackboxsizey = (200, 100) # Universal størrelse på attackbox
 attack1x, attack1y = (56, 56) # Koordinater på bottomleft corner av boxene
-attack2x, attack2y = (200+56+56, 56)
-attack3x, attack3y = (200+200+56+56+56, 56)
-attack4x, attack4y = (200+200+200+56+56+56+56, 56)
+attack2x, attack2y = (312, 56)
+attack3x, attack3y = (568, 56)
+attack4x, attack4y = (824, 56)
 
 #
 # FUNKSJONER (F.EKS. BATTLE MECHANICS)
@@ -92,11 +92,19 @@ class mainScene(scene.Scene):
 		scene.SpriteNode(player1['sprite'], position=(150, 600), parent=self, scale=2)
 		scene.SpriteNode(player2['sprite'], position=(800, 600), parent=self, scale=2)
 		
+		# Topleft text (player #'s turn)
+		
 		self.playerturn = scene.LabelNode("(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name']), font=('Avenir', 25), color='#000', position=(130, 750), parent=self)
+		
+		# Attack text
+		
+		self.attack1label = scene.LabelNode('', font=('Avenir', 20), color='#fff', position=(attack1x+(attackboxsizex/2), attack1y+(attackboxsizey/2)), parent=self)
+		
+		# Text if attack is missed
+		
+		self.attackmissedtext = scene.LabelNode('', font=('Avenir', 50), color='transparent', position=(self.size.w/2, self.size.h/2), parent=self)
 	
 	def draw(self):
-		
-		#self.missed = scene.LabelNode('Missed!', font=('Avenir', 50), color='transparent', position=)
 		
 		# HP bar player 1
 		
@@ -122,15 +130,17 @@ class mainScene(scene.Scene):
 		# Attack text
 		
 		if self.currentMover == 1:
-			self.attack1label = scene.LabelNode(player1['attacks']['attack1'][2], font=('Avenir', 20), color='#fff', position=(175, 150), parent=self)
-		
-		
+			self.attack1label.text = player1['attacks']['attack1'][2]
+		else:
+			self.attack1label.text = player2['attacks']['attack1'][2]
 	
 	def touch_began(self, touch):				
 		
-		if 100 < touch.location.x < 250 and 100 < touch.location.y < 200: #Første black box eller attack
+		self.attackmissedtext.text = ''
+		
+		if attack1x < touch.location.x < attack1x+attackboxsizex and attack1y < touch.location.y < attack1y+attackboxsizey: #Første black box eller attack
 			accrng = random.randint(1, 100)
-			critrng = random.randint(1,100)
+			critrng = random.randint(1, 100)
 			
 			# Sjekker om det er P2 sin tur
 			if self.currentMover == 2:
@@ -140,7 +150,7 @@ class mainScene(scene.Scene):
 					else:
 						player1['HP'] -= DMGcalc(player2, player1, 'attack1')
 				else:
-					pass
+					self.attackmissedtext.text = '(Player {}) {} missed!'.format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
 				#Bytter tur tilbake til P1
 				self.currentMover = 1
 				self.playerturn.text = "(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
@@ -150,12 +160,11 @@ class mainScene(scene.Scene):
 				if accrng < player1['attacks']['attack1'][1]:
 					if critrng <= player1['CRITrate']:
 						player2['HP'] -= DMGcalc(player1, player2, 'attack1')*2
-					
 					else:	
 						player2['HP'] -= DMGcalc(player1, player2, 'attack1')
 					#Dealer damage til P2
 				else:
-					pass
+					self.attackmissedtext.text = '(Player {}) {} missed!'.format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
 				#Bytter tur tilbake til P2
 				self.currentMover = 2
 				self.playerturn.text = "(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
@@ -179,3 +188,4 @@ class mainScene(scene.Scene):
 #print(scene.get_screen_size()) #1080 810
 
 scene.run(mainScene())
+
