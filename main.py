@@ -98,7 +98,7 @@ class mainScene(scene.Scene):
 		
 		# Attack text
 		
-		self.attack1label = scene.LabelNode(player1['attacks']['attack1'][2], font=('Avenir', 20), color='#fff', position=(attack1x+(attackboxsizex/2), attack1y+(attackboxsizey/2)), parent=self)
+		self.attack1label = scene.LabelNode('', font=('Avenir', 20), color='#fff', position=(attack1x+(attackboxsizex/2), attack1y+(attackboxsizey/2)), parent=self)
 		
 		# Text if attack is missed
 		
