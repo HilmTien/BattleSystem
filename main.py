@@ -32,7 +32,7 @@ playablecharacters = [{
 	'SPE': 80,
 	'CRITrate': 0,
 	'attacks': {
-		'attack1': (80, 90, 'testing'),
+		'attack1': (80, 90, 'Normal Attack'),
 		'attack2': (90, 80)
 	}
 }] # Mulighet til å legge til flere karakterer rett før ]
