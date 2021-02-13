@@ -105,6 +105,8 @@ class mainScene(scene.Scene):
 		# Text if attack is missed
 		
 		self.attackmissedtext = scene.LabelNode('', font=('Avenir', 50), color='transparent', position=(self.size.w/2, self.size.h/2), parent=self)
+		
+		self.critHit = scene.LabelNode('', font=('Avenir', 50), color='transparent', position=(self.size.w/2, self.size.h/2), parent=self)
 	
 	def draw(self):
 		
@@ -137,8 +139,8 @@ class mainScene(scene.Scene):
 			self.attack1label.text = player2['attacks']['attack1'][2]
 	
 	def touch_began(self, touch):				
-		
 		self.attackmissedtext.text = ''
+		self.critHit.text = ''
 		# Deaktiverer Normal Attack hvis en av spillerene er døde
 		if self.Game_Over == False:
 			if attack1x < touch.location.x < attack1x+attackboxsizex and attack1y < touch.location.y < attack1y+attackboxsizey: #Første black box eller attack
@@ -150,6 +152,7 @@ class mainScene(scene.Scene):
 					if accrng < player2['attacks']['attack1'][1]: #Sjekker accuracy
 						if critrng <= player2['CRITrate']:						
 							player1['HP'] -= DMGcalc(player2, player1, 'attack1')*2 #Dealer damage til P1
+							self.critHit.text = '(Player {}) {} CRIT!'.format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
 						else:
 							player1['HP'] -= DMGcalc(player2, player1, 'attack1')
 					else:
@@ -163,11 +166,13 @@ class mainScene(scene.Scene):
 					if accrng < player1['attacks']['attack1'][1]:
 						if critrng <= player1['CRITrate']:
 							player2['HP'] -= DMGcalc(player1, player2, 'attack1')*2
+							self.critHit.text = '(Player {}) {} CRIT!'.format(self.currentMover, [player1, player2][self.currentMover-1]['name'])						
 						else:	
 							player2['HP'] -= DMGcalc(player1, player2, 'attack1')
 						#Dealer damage til P2
 					else:
 						self.attackmissedtext.text = '(Player {}) {} missed!'.format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+						
 					#Bytter tur tilbake til P2
 					self.currentMover = 2
 					self.playerturn.text = "(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
