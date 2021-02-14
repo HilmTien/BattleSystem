@@ -14,13 +14,13 @@ playablecharacters = [{
 	'sprite': 'emj:Dancer',
 	'HP': 1000,
 	'MHP': 1000,
-	'ATK': 60,
+	'ATK': 70,
 	'DEF': 45,
 	'SPE': 100,
 	'CRITrate': 15,
 	'attacks': {
 		'attack1': (80, 90, 'Normal Attack'), # (atk, accuracy), senere implement element!
-		'attack2': (90, 80)
+		'attack2': (90, 80, 'Elemental Skill')
 	}
 }, {
 	'name': 'Aether',
@@ -33,7 +33,7 @@ playablecharacters = [{
 	'CRITrate': 0,
 	'attacks': {
 		'attack1': (80, 90, 'Normal Attack'),
-		'attack2': (90, 80)
+		'attack2': (90, 80, 'Elemental Skill')
 	}
 }] # Mulighet til å legge til flere karakterer rett før ]
 
@@ -96,11 +96,14 @@ class mainScene(scene.Scene):
 		
 		# Topleft text (player #'s turn)
 		
-		self.playerturn = scene.LabelNode("(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name']), font=('Avenir', 25), color='#000', position=(130, 750), parent=self)
+		self.playerturn = scene.LabelNode("(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name']), font=('Avenir', 25), color='#000', position=(25, self.size.h-25), parent=self, anchor_point=(0, 1))
 		
-		# Attack text
+		# Attack text (1 - 4)
 		
 		self.attack1label = scene.LabelNode('', font=('Avenir', 20), color='#fff', position=(attack1x+(attackboxsizex/2), attack1y+(attackboxsizey/2)), parent=self)
+		self.attack1labe2 = scene.LabelNode('', font=('Avenir', 20), color='#fff', position=(attack2x+(attackboxsizex/2), attack2y+(attackboxsizey/2)), parent=self)
+		self.attack1labe3 = scene.LabelNode('', font=('Avenir', 20), color='#fff', position=(attack3x+(attackboxsizex/2), attack3y+(attackboxsizey/2)), parent=self)
+		self.attack1labe4 = scene.LabelNode('', font=('Avenir', 20), color='#fff', position=(attack4x+(attackboxsizex/2), attack4y+(attackboxsizey/2)), parent=self)
 		
 		# Text if attack is missed
 		
@@ -135,15 +138,22 @@ class mainScene(scene.Scene):
 		
 		if self.currentMover == 1:
 			self.attack1label.text = player1['attacks']['attack1'][2]
+			self.attack1labe2.text = player1['attacks']['attack2'][2]
+			#self.attack1labe3.text = player1['attacks']['attack3'][2]
+			#self.attack1labe4.text = player1['attacks']['attack4'][2]
 		else:
 			self.attack1label.text = player2['attacks']['attack1'][2]
+			self.attack1labe2.text = player2['attacks']['attack2'][2]
+			#self.attack1labe3.text = playe2['attacks']['attack3'][2]
+			#self.attack1labe4.text = player2['attacks']['attack4'][2]
 	
 	def touch_began(self, touch):				
 		self.attackmissedtext.text = ''
 		self.critHit.text = ''
 		# Deaktiverer Normal Attack hvis en av spillerene er døde
 		if self.Game_Over == False:
-			if attack1x < touch.location.x < attack1x+attackboxsizex and attack1y < touch.location.y < attack1y+attackboxsizey: #Første black box eller attack
+			if attack1x < touch.location.x < attack1x+attackboxsizex and attack1y < touch.location.y < attack1y+attackboxsizey: # Første black box eller attack
+				
 				accrng = random.randint(1, 100)
 				critrng = random.randint(1, 100)
 				
@@ -184,7 +194,7 @@ class mainScene(scene.Scene):
 			scene.rect(0, 0, 2000, 2000)
 			# Signaliserer at et av spillerene er døde
 			self.Game_Over = True
-			self.wintext = scene.LabelNode('{} (Player 1) wins'.format(player2['name']), font=('Avenir', 110), color='#000', position=(self.size.w/2, self.size.h/2), parent=self)
+			self.wintext = scene.LabelNode('{} (Player 2) wins'.format(player2['name']), font=('Avenir', 110), color='#000', position=(self.size.w/2, self.size.h/2), parent=self)
 			sys.exit()
 		if player2['HP'] <= 0:
 			scene.fill("#fff")
