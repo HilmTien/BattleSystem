@@ -18,8 +18,10 @@ playablecharacters = [{
 	'DEF': 45,
 	'SPE': 100,
 	'CRITrate': 15,
+	'status': '',
+	'statustimer': 0,
 	'attacks': {
-		'attack1': (80, 90, 'Normal Attack'), # (atk, accuracy), senere implement element!
+		'attack1': (80, 90, 'Normal Attack', 'pyro'), # (atk, accuracy), senere implement element!
 		'attack2': (90, 80, 'Elemental Skill')
 	}
 }, {
@@ -31,8 +33,10 @@ playablecharacters = [{
 	'DEF': 60,
 	'SPE': 80,
 	'CRITrate': 0,
+	'status': '',
+	'statustimer': 0,
 	'attacks': {
-		'attack1': (80, 90, 'Normal Attack'),
+		'attack1': (80, 90, 'Normal Attack', 'physical'),
 		'attack2': (90, 80, 'Elemental Skill')
 	}
 }] # Mulighet til å legge til flere karakterer rett før ]
@@ -73,6 +77,15 @@ def SPEcalc(player, opponent):
 
 
 def DMGcalc(player, opponent, attack): # player og opponent er i dictionary formatet importert fra playablecharacters
+
+	# Elemetal check
+	
+	if player['attacks'][attack][3] != 'physical':
+		opponent['status'] = player['attacks'][attack][3] # Applyer element til enemy
+		opponent['statustimer'] = 3
+		
+	
+	# Vanligvis (phys dmg, ingen reaction)
 	return (player['ATK']/opponent['DEF']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
 
 def hppercentage(player):
@@ -110,6 +123,11 @@ class mainScene(scene.Scene):
 		self.attackmissedtext = scene.LabelNode('', font=('Avenir', 50), color='transparent', position=(self.size.w/2, self.size.h/2), parent=self)
 		
 		self.critHit = scene.LabelNode('', font=('Avenir', 50), color='transparent', position=(self.size.w/2, self.size.h/2), parent=self)
+		
+		# Elements sprites
+		
+		self.pyro1 = scene.SpriteNode('emj:Fire', position=(100, 500), anchor_point=(0.5, 1), parent=self, alpha=0)
+		self.pyro2 = scene.SpriteNode('emj:Fire', position=(750, 500), anchor_point=(0.5, 1), parent=self, alpha=0) 
 	
 	def draw(self):
 		
@@ -127,6 +145,16 @@ class mainScene(scene.Scene):
 		scene.fill("#4cd658")
 		scene.rect(760, 510, hppercentage(player2), 30)
 		
+		# Elemental sprites
+		
+		if player1['status'] != '':
+			#self.pyro.alpha = 1
+			setattr(getattr(self, '{}{}'.format(player1['status'], '1')), 'alpha', 1) # en bedre måte å skrive det over
+		if player2['status'] != '':
+			#self.pyro.alpha = 1
+			setattr(getattr(self, '{}{}'.format(player2['status'], '2')), 'alpha', 1)
+			pass
+			
 		# Attack #1-4 button
 		scene.fill("#000")
 		scene.rect(attack1x, attack1y, attackboxsizex, attackboxsizey)
@@ -190,15 +218,13 @@ class mainScene(scene.Scene):
 		# Dead check
 		
 		if player1['HP'] <= 0:
-			scene.fill("#fff")
-			scene.rect(0, 0, 2000, 2000)
 			# Signaliserer at et av spillerene er døde
+			self.critHit.text = ''
 			self.Game_Over = True
 			self.wintext = scene.LabelNode('{} (Player 2) wins'.format(player2['name']), font=('Avenir', 110), color='#000', position=(self.size.w/2, self.size.h/2), parent=self)
 			sys.exit()
 		if player2['HP'] <= 0:
-			scene.fill("#fff")
-			scene.rect(0, 0, 2000, 2000)
+			self.critHit.text = ''
 			self.Game_Over = True
 			self.wintext = scene.LabelNode('{} (Player 1) wins'.format(player1['name']), font=('Avenir', 110), color='#000', position=(self.size.w/2, self.size.h/2), parent=self)
 			sys.exit()
