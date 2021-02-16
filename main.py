@@ -15,14 +15,17 @@ playablecharacters = [{
 	'HP': 1000,
 	'MHP': 1000,
 	'ATK': 70,
+	'ELEATK': 100,
 	'DEF': 45,
+	'ELERES': 30,
 	'SPE': 100,
 	'CRITrate': 15,
 	'status': '',
 	'statustimer': 0,
 	'attacks': {
-		'attack1': (80, 90, 'Normal Attack', 'pyro'), # (atk, accuracy), senere implement element!
-		'attack2': (90, 80, 'Elemental Skill')
+		'attack1': (80, 90, 'Normal Attack', 'physical'), # (atk, accuracy), senere implement element!
+		'attack2': (90, 80, 'Primary Skill', 'anemo'),
+		'attack3': (60, 100, 'Secondary Skill', 'geo')
 	}
 }, {
 	'name': 'Aether',
@@ -30,14 +33,17 @@ playablecharacters = [{
 	'HP': 1750,
 	'MHP': 1750,
 	'ATK': 30,
+	'ELEATK': 20,
 	'DEF': 60,
+	'ELERES': 60,
 	'SPE': 80,
 	'CRITrate': 0,
-	'status': 'hydro',
-	'statustimer': 0,
+	'status': '',
+	'statustimer': 3,
 	'attacks': {
 		'attack1': (80, 90, 'Normal Attack', 'physical'),
-		'attack2': (90, 80, 'Elemental Skill')
+		'attack2': (90, 80, 'Primary Skill', 'geo'),
+		'attack3': (60, 90, 'Secondary Skill', 'anemo')
 	}
 }] # Mulighet til å legge til flere karakterer rett før ]
 
@@ -48,8 +54,10 @@ playablecharacters = [{
 # Viser antallet spillbare karakterer
 antallCharacters = len(playablecharacters)
 # Velger en tilfeldig karakter for hver spiller
-player1 = dict(playablecharacters[random.randint(0,antallCharacters-1)])
-player2 = dict(playablecharacters[random.randint(0,antallCharacters-1)])
+#player1 = dict(playablecharacters[random.randint(0,antallCharacters-1)])
+#player2 = dict(playablecharacters[random.randint(0,antallCharacters-1)])
+player1 = dict(playablecharacters[0])
+player2 = dict(playablecharacters[1])
 
 attackboxsizex, attackboxsizey = (200, 100) # Universal størrelse på attackbox
 attack1x, attack1y = (56, 56) # Koordinater på bottomleft corner av boxene
@@ -76,23 +84,133 @@ def SPEcalc(player, opponent):
 
 # Sjekker hvilken reaction som blir inflicted	
 def ELMreactionCheck(player, opponent, attack):
+	
+	if opponent['status'] == 'geo':
+		elementalReaction = 'crystallize'
+	
+	if opponent['status'] == 'anemo':
+		elementalReaction = 'swirl'
+		
+	if opponent['status'] == 'dendro':
+		if player['attacks'][attack][3] == 'pyro':
+			elementalReaction = 'burning'
+		
+		if player['attacks'][attack][3] == 'anemo':
+			elementalReaction = 'swirl'
+		
+		if player['attacks'][attack][3] == 'geo':
+			elementalReaction = 'crystallize'
+	
 	if opponent['status'] == 'hydro':
 		if player['attacks'][attack][3] == 'pyro':
-			elementalReaction = 'vaporize'
+			elementalReaction = 'vaporizeweak'
+			
+		if player['attacks'][attack][3] == 'cryo':
+			elementalReaction = 'freeze'
+			
+		if player['attacks'][attack][3] == 'electro':
+			elementalReaction = 'electrocharged'
+		
+		if player['attacks'][attack][3] == 'anemo':
+			elementalReaction = 'swirl'
+		
+		if player['attacks'][attack][3] == 'geo':
+			elementalReaction = 'crystallize'
+	
+	elif opponent['status'] == 'pyro':
+		if player['attacks'][attack][3] == 'hydro':
+			elementalReaction = 'vaporizestrong'
+			
+		if player['attacks'][attack][3] == 'cryo':
+			elementalReaction = 'meltweak'
+			
+		if player['attacks'][attack][3] == 'electro':
+			elementalReaction = 'overload'
+		
+		if player['attacks'][attack][3] == 'dendro':
+			elementalReaction = 'burning'
+		
+		if player['attacks'][attack][3] == 'anemo':
+			elementalReaction = 'swirl'
+		
+		if player['attacks'][attack][3] == 'geo':
+			elementalReaction = 'crystallize'
+	
+	elif opponent['status'] == 'electro':
+		if player['attacks'][attack][3] == 'hydro':
+			elementalReaction = 'electrocharged'
+			
+		if player['attacks'][attack][3] == 'cryo':
+			elementalReaction = 'superconduct'
+			
+		if player['attacks'][attack][3] == 'pyro':
+			elementalReaction = 'overload'
+		
+		if player['attacks'][attack][3] == 'anemo':
+			elementalReaction = 'swirl'
+		
+		if player['attacks'][attack][3] == 'geo':
+			elementalReaction = 'crystallize'
+	
+	elif opponent['status'] == 'cryo':
+		if player['attacks'][attack][3] == 'hydro':
+			elementalReaction = 'freeze'
+			
+		if player['attacks'][attack][3] == 'electro':
+			elementalReaction = 'superconduct'
+			
+		if player['attacks'][attack][3] == 'pyro':
+			elementalReaction = 'meltstrong'
+		
+		if player['attacks'][attack][3] == 'anemo':
+			elementalReaction = 'swirl'
+		
+		if player['attacks'][attack][3] == 'geo':
+			elementalReaction = 'crystallize'
 	
 	if opponent['status'] == player['attacks'][attack][3]:
 		elementalReaction = 'neutral'
+	
 	return elementalReaction
 
-#Utfører elemental reactions
+# Utfører elemental reactions
 def ELMreactions(player, opponent, attack, ElementalReaction):
-	if ElementalReaction == 'vaporize':
-		# Husk å add special defence
-		DMGdealt = (player['ATK']/opponent['DEF']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)*10
-		
 	
 	if ElementalReaction == 'neutral':
-		DMGdealt = (player['ATK']/opponent['DEF']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
+		DMGdealt = (player['ELEATK']/opponent['ELERES']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
+		opponent['statustimer'] = 4
+	else:
+		if ElementalReaction == 'vaporizeweak':
+			DMGdealt = (player['ELEATK']/opponent['ELERES']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)*1.5
+		elif ElementalReaction == 'vaporizestrong':
+			DMGdealt = (player['ELEATK']/opponent['ELERES']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)*2
+		elif ElementalReaction == 'meltweak':
+			DMGdealt = (player['ELEATK']/opponent['ELERES']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)*1.5
+		elif ElementalReaction == 'meltstrong':
+			DMGdealt = (player['ELEATK']/opponent['ELERES']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)*2
+		elif ElementalReaction == 'superconduct':
+			opponent['DEF'] /= 2
+			DMGdealt = (player['ELEATK']/opponent['ELERES']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
+		elif ElementalReaction == 'swirl':
+			opponent['ELERES'] = (opponent['ELERES']/3) * 2
+			DMGdealt = (player['ELEATK']/opponent['ELERES']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
+		elif ElementalReaction == 'overload':
+			DMGdealt = player['ELEATK'] * player['attacks'][attack][0] * (random.randint(8, 12)/10)
+		elif ElementalReaction == 'freeze':
+			opponent['isFrozenRounds'] = 4
+			DMGdealt = (player['ELEATK']/opponent['ELERES']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
+		elif ElementalReaction == 'burning':
+			opponent['isBurningRounds'] = 6
+			DMGdealt = (player['ELEATK']/opponent['ELERES']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
+		elif ElementalReaction == 'electrocharged':
+			opponent['isElectroChargedRounds'] = 6
+			DMGdealt = (player['ELEATK']/opponent['ELERES']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
+		elif ElementalReaction == 'crystallize':
+			player['HP'] += player['DEF'] + player['ELERES']
+			DMGdealt = (player['ELEATK']/opponent['ELERES']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
+			
+		# Fjerner element etter reaction
+		opponent['status'] = ''
 	
 	return DMGdealt
 	
@@ -105,18 +223,69 @@ def DMGcalc(player, opponent, attack): # player og opponent er i dictionary form
 	if player['attacks'][attack][3] != 'physical':
 		if opponent['status'] == '':
 			opponent['status'] = player['attacks'][attack][3] # Applyer element til enemy
-			opponent['statustimer'] = 3
+			opponent['statustimer'] = 4
+			#endre atk og def til elematk/res
 			DMGdealt = (player['ATK']/opponent['DEF']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
 		
 		else:
 			ElementalReaction = ELMreactionCheck(player,opponent,attack)
 			DMGdealt = ELMreactions(player, opponent, attack, ElementalReaction)
-			opponent['status'] = ''
-			
 		
 	else:
 		DMGdealt = (player['ATK']/opponent['DEF']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
-	# Vanligvis (phys dmg, ingen reaction)
+		
+	# Electro Charged damage check
+	try:
+		if player['isElectroChargedRounds'] != 0:
+			player['HP'] -= ((player['MHP'] - player['HP']) / 10)
+			player['isElectroChargedRounds'] -= 1
+	except:
+		pass
+	
+	try:
+		if opponent['isElectroChargedRounds'] != 0:
+			opponent['HP'] -= ((opponent['MHP'] - opponent['HP']) / 10)
+			opponent['isElectroChargedRounds'] -= 1
+	except:
+		pass		
+	
+	# Burning check
+	
+	try:
+		if player['isBurningRounds'] != 0:
+			player['HP'] -= player['HP'] / 10
+			player['isElectroChargedRounds'] -= 1
+	except:
+		pass
+	
+	try:
+		if opponent['isBurningRounds'] != 0:
+			opponent['HP'] -= opponent['HP'] / 10
+			opponent['isBurningRounds'] -= 1
+	except:
+		pass
+		
+	# Freeze check
+	
+	try:
+		if player['isFrozenRounds'] != 0:
+			DMGdealt = 0
+			player['isFrozenRounds'] -= 1
+		thawrng = random.randint(1, player['isFrozenRounds'])
+		if thawrng == 1:
+			player['isFrozenRounds'] = 0
+	except:
+		pass
+	
+	try:
+		if opponent['isFrozenRounds'] != 0:
+			opponent['isFrozenRounds'] -= 1
+		thawrng = random.randint(1, opponent['isFrozenRounds'])
+		if thawrng == 1:
+			opponent['isFrozenRounds'] = 0
+	except:
+		pass
+	
 	return DMGdealt
 
 def hppercentage(player):
@@ -145,15 +314,15 @@ class mainScene(scene.Scene):
 		# Attack text (1 - 4)
 		
 		self.attack1label = scene.LabelNode('', font=('Avenir', 20), color='#fff', position=(attack1x+(attackboxsizex/2), attack1y+(attackboxsizey/2)), parent=self)
-		self.attack1labe2 = scene.LabelNode('', font=('Avenir', 20), color='#fff', position=(attack2x+(attackboxsizex/2), attack2y+(attackboxsizey/2)), parent=self)
-		self.attack1labe3 = scene.LabelNode('', font=('Avenir', 20), color='#fff', position=(attack3x+(attackboxsizex/2), attack3y+(attackboxsizey/2)), parent=self)
-		self.attack1labe4 = scene.LabelNode('', font=('Avenir', 20), color='#fff', position=(attack4x+(attackboxsizex/2), attack4y+(attackboxsizey/2)), parent=self)
+		self.attack1label2 = scene.LabelNode('', font=('Avenir', 20), color='#fff', position=(attack2x+(attackboxsizex/2), attack2y+(attackboxsizey/2)), parent=self)
+		self.attack1label3 = scene.LabelNode('', font=('Avenir', 20), color='#fff', position=(attack3x+(attackboxsizex/2), attack3y+(attackboxsizey/2)), parent=self)
+		self.attack1label4 = scene.LabelNode('', font=('Avenir', 20), color='#fff', position=(attack4x+(attackboxsizex/2), attack4y+(attackboxsizey/2)), parent=self)
 		
 		# Text if attack is missed
 		
-		self.attackmissedtext = scene.LabelNode('', font=('Avenir', 50), color='transparent', position=(self.size.w/2, self.size.h/2), parent=self)
+		self.attackmissedtext = scene.LabelNode('', font=('Avenir', 50), color='#000', position=(self.size.w/2, self.size.h/2), parent=self)
 		
-		self.critHit = scene.LabelNode('', font=('Avenir', 50), color='transparent', position=(self.size.w/2, self.size.h/2), parent=self)
+		self.critHit = scene.LabelNode('', font=('Avenir', 50), color='#000', position=(self.size.w/2, self.size.h/2), parent=self)
 		
 		# Elements sprites
 		
@@ -163,9 +332,24 @@ class mainScene(scene.Scene):
 		self.hydro1 = scene.SpriteNode('emj:Droplet', position=(100, 500), anchor_point=(0.5, 1), parent=self, alpha=0)
 		self.hydro2 = scene.SpriteNode('emj:Droplet', position=(750, 500), anchor_point=(0.5, 1), parent=self, alpha=0) 
 		
+		self.cryo1 = scene.SpriteNode('emj:Snowflake', position=(100, 500), anchor_point=(0.5, 1), parent=self, alpha=0)
+		self.cryo2 = scene.SpriteNode('emj:Snowflake', position=(750, 500), anchor_point=(0.5, 1), parent=self, alpha=0) 
+		
+		self.electro1 = scene.SpriteNode('emj:High_Voltage_Sign', position=(100, 500), anchor_point=(0.5, 1), parent=self, alpha=0)
+		self.electro2 = scene.SpriteNode('emj:High_Voltage_Sign', position=(750, 500), anchor_point=(0.5, 1), parent=self, alpha=0) 
+		
+		self.anemo1 = scene.SpriteNode('emj:Cyclone', position=(100, 500), anchor_point=(0.5, 1), parent=self, alpha=0)
+		self.anemo2 = scene.SpriteNode('emj:Cyclone', position=(750, 500), anchor_point=(0.5, 1), parent=self, alpha=0) 
+		
+		self.geo1 = scene.SpriteNode('emj:Moyai', position=(100, 500), anchor_point=(0.5, 1), parent=self, alpha=0)
+		self.geo2 = scene.SpriteNode('emj:Moyai', position=(750, 500), anchor_point=(0.5, 1), parent=self, alpha=0) 
+		
+		self.dendro1 = scene.SpriteNode('emj:Seedling', position=(100, 500), anchor_point=(0.5, 1), parent=self, alpha=0)
+		self.dendro2 = scene.SpriteNode('emj:Seedling', position=(750, 500), anchor_point=(0.5, 1), parent=self, alpha=0) 
+		
 		# Elemental reaction Labels
-		self.Player1elementalReactions = scene.LabelNode('', font=('Avenir', 50), color='transparent', position=(150, 600), parent=self)
-		self.Player2elementalReactions = scene.LabelNode('', font=('Avenir', 50), color='transparent', position=(800, 600), parent=self)
+		self.Player1DOT = scene.LabelNode('', font=('Avenir', 25), color='#000', position=(225, 600), parent=self, anchor_point=(0, 0))
+		self.Player2DOT = scene.LabelNode('', font=('Avenir', 25), color='#000', position=(875, 600), parent=self, anchor_point=(0, 0))
 	
 	def draw(self):
 		
@@ -188,12 +372,76 @@ class mainScene(scene.Scene):
 		if player1['status'] != '':
 			#self.pyro.alpha = 1
 			setattr(getattr(self, '{}{}'.format(player1['status'], '1')), 'alpha', 1) # en bedre måte å skrive det over
+		else:
+			setattr(getattr(self, 'pyro1'), 'alpha', 0)
+			setattr(getattr(self, 'hydro1'), 'alpha', 0)
+			setattr(getattr(self, 'cryo1'), 'alpha', 0)
+			setattr(getattr(self, 'electro1'), 'alpha', 0)
+			setattr(getattr(self, 'geo1'), 'alpha', 0)
+			setattr(getattr(self, 'anemo1'), 'alpha', 0)
+			setattr(getattr(self, 'dendro1'), 'alpha', 0)
 		if player2['status'] != '':
 			#self.pyro.alpha = 1
 			setattr(getattr(self, '{}{}'.format(player2['status'], '2')), 'alpha', 1)
 		else:
-			setattr(getattr(self, 'pyro2')), 'alpha', 0)
+			setattr(getattr(self, 'pyro2'), 'alpha', 0)
+			setattr(getattr(self, 'hydro2'), 'alpha', 0)
+			setattr(getattr(self, 'cryo2'), 'alpha', 0)
+			setattr(getattr(self, 'electro2'), 'alpha', 0)
+			setattr(getattr(self, 'geo2'), 'alpha', 0)
+			setattr(getattr(self, 'anemo2'), 'alpha', 0)
+			setattr(getattr(self, 'dendro2'), 'alpha', 0)
 			
+		# DOTs
+		
+		try:
+			if player1['isBurningRounds'] != 0:
+				self.Player1DOT.text = 'Burning'
+			else:
+				self.Player1DOT.text = ''
+		except:
+			pass
+			
+		try:
+			if player1['isElectroChargedRounds'] != 0:
+				self.Player1DOT.text = 'Electro Charged'
+			else:
+				self.Player1DOT.text = ''
+		except:
+			pass
+		
+		try:
+			if player1['isFrozenRounds'] != 0:
+				self.Player1DOT.text = 'Frozen'
+			else:
+				self.Player1DOT.text = ''
+		except:
+			pass
+		
+		try:
+			if player2['isBurningRounds'] != 0:
+				self.Player2DOT.text = 'Burning'
+			else:
+				self.Player2DOT.text = ''
+		except:
+			pass
+			
+		try:
+			if player2['isElectroChargedRounds'] != 0:
+				self.Player2DOT.text = 'Electro Charged'
+			else:
+				self.Player2DOT.text = ''
+		except:
+			pass
+		
+		try:
+			if player2['isFrozenRounds'] != 0:
+				self.Player2DOT.text = 'Frozen'
+			else:
+				self.Player2DOT.text = ''
+		except:
+			pass
+					
 		# Attack #1-4 button
 		scene.fill("#000")
 		scene.rect(attack1x, attack1y, attackboxsizex, attackboxsizey)
@@ -205,20 +453,29 @@ class mainScene(scene.Scene):
 		
 		if self.currentMover == 1:
 			self.attack1label.text = player1['attacks']['attack1'][2]
-			self.attack1labe2.text = player1['attacks']['attack2'][2]
-			#self.attack1labe3.text = player1['attacks']['attack3'][2]
-			#self.attack1labe4.text = player1['attacks']['attack4'][2]
+			self.attack1label2.text = player1['attacks']['attack2'][2]
+			self.attack1label3.text = player1['attacks']['attack3'][2]
+			#self.attack1label4.text = player1['attacks']['attack4'][2]
 		else:
 			self.attack1label.text = player2['attacks']['attack1'][2]
-			self.attack1labe2.text = player2['attacks']['attack2'][2]
-			#self.attack1labe3.text = playe2['attacks']['attack3'][2]
-			#self.attack1labe4.text = player2['attacks']['attack4'][2]
+			self.attack1label2.text = player2['attacks']['attack2'][2]
+			self.attack1label3.text = player2['attacks']['attack3'][2]
+			#self.attack1label4.text = player2['attacks']['attack4'][2]
+	
+	
+	
+	
 	
 	def touch_began(self, touch):				
 		self.attackmissedtext.text = ''
 		self.critHit.text = ''
 		# Deaktiverer Normal Attack hvis en av spillerene er døde
 		if self.Game_Over == False:
+			
+			#
+			# Attack 1
+			#
+			
 			if attack1x < touch.location.x < attack1x+attackboxsizex and attack1y < touch.location.y < attack1y+attackboxsizey: # Første black box eller attack
 				
 				accrng = random.randint(1, 100)
@@ -237,6 +494,13 @@ class mainScene(scene.Scene):
 					#Bytter tur tilbake til P1
 					self.currentMover = 1
 					self.playerturn.text = "(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+					# Ticker ned elemental status timer
+					if player1['statustimer'] != 0:
+						player1['statustimer'] -= 1
+					# Fjerner element etter en tid
+					if player1['statustimer'] <= 0:
+						player1['status'] = ''
+						
 				
 				# Spiller om det er P1 sin tur
 				else:				
@@ -253,6 +517,116 @@ class mainScene(scene.Scene):
 					#Bytter tur tilbake til P2
 					self.currentMover = 2
 					self.playerturn.text = "(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+					# Ticker ned elemental status timer
+					if player2['statustimer'] != 0:
+						player2['statustimer'] -= 1
+					# Fjerner element etter en tid
+					if player2['statustimer'] <= 0:
+						player2['status'] = ''
+		
+			#
+			# Attack 2
+			#
+		
+			if attack2x < touch.location.x < attack2x+attackboxsizex and attack2y < touch.location.y < attack2y+attackboxsizey: # Første black box eller attack
+				
+				accrng = random.randint(1, 100)
+				critrng = random.randint(1, 100)
+				
+				# Sjekker om det er P2 sin tur
+				if self.currentMover == 2:
+					if accrng < player2['attacks']['attack2'][1]: #Sjekker accuracy
+						if critrng <= player2['CRITrate']:						
+							player1['HP'] -= DMGcalc(player2, player1, 'attack2')*2 #Dealer damage til P1
+							self.critHit.text = '(Player {}) {} CRIT!'.format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+						else:
+							player1['HP'] -= DMGcalc(player2, player1, 'attack2')
+					else:
+						self.attackmissedtext.text = '(Player {}) {} missed!'.format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+					#Bytter tur tilbake til P1
+					self.currentMover = 1
+					self.playerturn.text = "(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+					# Ticker ned elemental status timer
+					if player1['statustimer'] != 0:
+						player1['statustimer'] -= 1
+					# Fjerner element etter en tid
+					if player1['statustimer'] <= 0:
+						player1['status'] = ''
+						
+				
+				# Spiller om det er P1 sin tur
+				else:				
+					if accrng < player1['attacks']['attack2'][1]:
+						if critrng <= player1['CRITrate']:
+							player2['HP'] -= DMGcalc(player1, player2, 'attack2')*2
+							self.critHit.text = '(Player {}) {} CRIT!'.format(self.currentMover, [player1, player2][self.currentMover-1]['name'])						
+						else:	
+							player2['HP'] -= DMGcalc(player1, player2, 'attack2')
+						#Dealer damage til P2
+					else:
+						self.attackmissedtext.text = '(Player {}) {} missed!'.format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+						
+					#Bytter tur tilbake til P2
+					self.currentMover = 2
+					self.playerturn.text = "(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+					# Ticker ned elemental status timer
+					if player2['statustimer'] != 0:
+						player2['statustimer'] -= 1
+					# Fjerner element etter en tid
+					if player2['statustimer'] <= 0:
+						player2['status'] = ''
+			
+			#
+			# Attack 3
+			#
+		
+			if attack3x < touch.location.x < attack3x+attackboxsizex and attack3y < touch.location.y < attack3y+attackboxsizey: # Første black box eller attack
+				
+				accrng = random.randint(1, 100)
+				critrng = random.randint(1, 100)
+				
+				# Sjekker om det er P2 sin tur
+				if self.currentMover == 2:
+					if accrng < player2['attacks']['attack3'][1]: #Sjekker accuracy
+						if critrng <= player2['CRITrate']:						
+							player1['HP'] -= DMGcalc(player2, player1, 'attack3')*2 #Dealer damage til P1
+							self.critHit.text = '(Player {}) {} CRIT!'.format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+						else:
+							player1['HP'] -= DMGcalc(player2, player1, 'attack3')
+					else:
+						self.attackmissedtext.text = '(Player {}) {} missed!'.format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+					#Bytter tur tilbake til P1
+					self.currentMover = 1
+					self.playerturn.text = "(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+					# Ticker ned elemental status timer
+					if player1['statustimer'] != 0:
+						player1['statustimer'] -= 1
+					# Fjerner element etter en tid
+					if player1['statustimer'] <= 0:
+						player1['status'] = ''
+						
+				
+				# Spiller om det er P1 sin tur
+				else:				
+					if accrng < player1['attacks']['attack3'][1]:
+						if critrng <= player1['CRITrate']:
+							player2['HP'] -= DMGcalc(player1, player2, 'attack3')*2
+							self.critHit.text = '(Player {}) {} CRIT!'.format(self.currentMover, [player1, player2][self.currentMover-1]['name'])						
+						else:	
+							player2['HP'] -= DMGcalc(player1, player2, 'attack3')
+						#Dealer damage til P2
+					else:
+						self.attackmissedtext.text = '(Player {}) {} missed!'.format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+						
+					#Bytter tur tilbake til P2
+					self.currentMover = 2
+					self.playerturn.text = "(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+					# Ticker ned elemental status timer
+					if player2['statustimer'] != 0:
+						player2['statustimer'] -= 1
+					# Fjerner element etter en tid
+					if player2['statustimer'] <= 0:
+						player2['status'] = ''
 		
 		# Dead check
 		
@@ -260,12 +634,12 @@ class mainScene(scene.Scene):
 			# Signaliserer at et av spillerene er døde
 			self.critHit.text = ''
 			self.Game_Over = True
-			self.wintext = scene.LabelNode('{} (Player 2) wins'.format(player2['name']), font=('Avenir', 110), color='#000', position=(self.size.w/2, self.size.h/2), parent=self)
+			self.wintext = scene.LabelNode('{} (Player 2) wins'.format(player2['name']), font=('Avenir', 100), color='#000', position=(self.size.w/2, (self.size.h/2)-25), parent=self)
 			sys.exit()
 		if player2['HP'] <= 0:
 			self.critHit.text = ''
 			self.Game_Over = True
-			self.wintext = scene.LabelNode('{} (Player 1) wins'.format(player1['name']), font=('Avenir', 110), color='#000', position=(self.size.w/2, self.size.h/2), parent=self)
+			self.wintext = scene.LabelNode('{} (Player 1) wins'.format(player1['name']), font=('Avenir', 100), color='#000', position=(self.size.w/2, (self.size.h/2)-25), parent=self)
 			sys.exit()
 	
 
