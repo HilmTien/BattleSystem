@@ -33,7 +33,7 @@ playablecharacters = [{
 	'DEF': 60,
 	'SPE': 80,
 	'CRITrate': 0,
-	'status': '',
+	'status': 'hydro',
 	'statustimer': 0,
 	'attacks': {
 		'attack1': (80, 90, 'Normal Attack', 'physical'),
@@ -73,20 +73,51 @@ def SPEcalc(player, opponent):
 		PlayerMove = random.randint(1,2)
 	
 	return PlayerMove
+
+# Sjekker hvilken reaction som blir inflicted	
+def ELMreactionCheck(player, opponent, attack):
+	if opponent['status'] == 'hydro':
+		if player['attacks'][attack][3] == 'pyro':
+			elementalReaction = 'vaporize'
+	
+	if opponent['status'] == player['attacks'][attack][3]:
+		elementalReaction = 'neutral'
+	return elementalReaction
+
+#Utfører elemental reactions
+def ELMreactions(player, opponent, attack, ElementalReaction):
+	if ElementalReaction == 'vaporize':
+		# Husk å add special defence
+		DMGdealt = (player['ATK']/opponent['DEF']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)*10
+		
+	
+	if ElementalReaction == 'neutral':
+		DMGdealt = (player['ATK']/opponent['DEF']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
+	
+	return DMGdealt
 	
 
-
 def DMGcalc(player, opponent, attack): # player og opponent er i dictionary formatet importert fra playablecharacters
+
 
 	# Elemetal check
 	
 	if player['attacks'][attack][3] != 'physical':
-		opponent['status'] = player['attacks'][attack][3] # Applyer element til enemy
-		opponent['statustimer'] = 3
+		if opponent['status'] == '':
+			opponent['status'] = player['attacks'][attack][3] # Applyer element til enemy
+			opponent['statustimer'] = 3
+			DMGdealt = (player['ATK']/opponent['DEF']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
 		
-	
+		else:
+			ElementalReaction = ELMreactionCheck(player,opponent,attack)
+			DMGdealt = ELMreactions(player, opponent, attack, ElementalReaction)
+			opponent['status'] = ''
+			
+		
+	else:
+		DMGdealt = (player['ATK']/opponent['DEF']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
 	# Vanligvis (phys dmg, ingen reaction)
-	return (player['ATK']/opponent['DEF']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
+	return DMGdealt
 
 def hppercentage(player):
 	res = (player['HP']/player['MHP']) * 100 * 1.8
@@ -128,6 +159,13 @@ class mainScene(scene.Scene):
 		
 		self.pyro1 = scene.SpriteNode('emj:Fire', position=(100, 500), anchor_point=(0.5, 1), parent=self, alpha=0)
 		self.pyro2 = scene.SpriteNode('emj:Fire', position=(750, 500), anchor_point=(0.5, 1), parent=self, alpha=0) 
+		
+		self.hydro1 = scene.SpriteNode('emj:Droplet', position=(100, 500), anchor_point=(0.5, 1), parent=self, alpha=0)
+		self.hydro2 = scene.SpriteNode('emj:Droplet', position=(750, 500), anchor_point=(0.5, 1), parent=self, alpha=0) 
+		
+		# Elemental reaction Labels
+		self.Player1elementalReactions = scene.LabelNode('', font=('Avenir', 50), color='transparent', position=(150, 600), parent=self)
+		self.Player2elementalReactions = scene.LabelNode('', font=('Avenir', 50), color='transparent', position=(800, 600), parent=self)
 	
 	def draw(self):
 		
@@ -153,7 +191,8 @@ class mainScene(scene.Scene):
 		if player2['status'] != '':
 			#self.pyro.alpha = 1
 			setattr(getattr(self, '{}{}'.format(player2['status'], '2')), 'alpha', 1)
-			pass
+		else:
+			setattr(getattr(self, 'pyro2')), 'alpha', 0)
 			
 		# Attack #1-4 button
 		scene.fill("#000")
