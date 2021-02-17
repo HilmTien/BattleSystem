@@ -260,8 +260,7 @@ def DMGcalc(player, opponent, attack): # player og opponent er i dictionary form
 		if opponent['status'] == '':
 			opponent['status'] = player['attacks'][attack][3] # Applyer element til enemy
 			opponent['statustimer'] = 4
-			#endre atk og def til elematk/res
-			DMGdealt = (player['ATK']/opponent['DEF']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
+			DMGdealt = (player['ELEATK']/opponent['ELERES']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
 		
 		else:
 			ElementalReaction = ELMreactionCheck(player,opponent,attack)
