@@ -22,6 +22,7 @@ playablecharacters = [{
 	'CRITrate': 15,
 	'status': '',
 	'statustimer': 0,
+	'reaction' : '',
 	'attacks': {
 		'attack1': (80, 90, 'Normal Attack', 'physical'), # (atk, accuracy), senere implement element!
 		'attack2': (90, 80, 'Primary Skill', 'anemo'),
@@ -40,6 +41,7 @@ playablecharacters = [{
 	'CRITrate': 0,
 	'status': '',
 	'statustimer': 3,
+	'reaction' : '',
 	'attacks': {
 		'attack1': (80, 90, 'Normal Attack', 'physical'),
 		'attack2': (90, 80, 'Primary Skill', 'geo'),
@@ -65,6 +67,8 @@ attack2x, attack2y = (312, 56)
 attack3x, attack3y = (568, 56)
 attack4x, attack4y = (824, 56)
 
+
+
 #
 # FUNKSJONER (F.EKS. BATTLE MECHANICS)
 #
@@ -87,91 +91,123 @@ def ELMreactionCheck(player, opponent, attack):
 	
 	if opponent['status'] == 'geo':
 		elementalReaction = 'crystallize'
+		if player['attacks'][attack][3] != 'geo':
+			opponent['reaction'] = 'Crystallize'
+		
+		
 	
 	if opponent['status'] == 'anemo':
 		elementalReaction = 'swirl'
+		if player['attacks'][attack][3] != 'anemo':
+			opponent['reaction'] = 'Swirl'
+		
+		
 		
 	if opponent['status'] == 'dendro':
 		if player['attacks'][attack][3] == 'pyro':
 			elementalReaction = 'burning'
+			opponent['reaction'] = 'Burning'
 		
 		if player['attacks'][attack][3] == 'anemo':
 			elementalReaction = 'swirl'
+			opponent['reaction'] = 'Swirl'
 		
 		if player['attacks'][attack][3] == 'geo':
 			elementalReaction = 'crystallize'
+			opponent['reaction'] = 'Crystallize'
 	
 	if opponent['status'] == 'hydro':
 		if player['attacks'][attack][3] == 'pyro':
 			elementalReaction = 'vaporizeweak'
+			opponent['reaction'] = 'Vaporize'
 			
 		if player['attacks'][attack][3] == 'cryo':
 			elementalReaction = 'freeze'
+			opponent['reaction'] = 'Freeze'
 			
 		if player['attacks'][attack][3] == 'electro':
 			elementalReaction = 'electrocharged'
+			opponent['reaction'] = 'Electro Charged'
 		
 		if player['attacks'][attack][3] == 'anemo':
 			elementalReaction = 'swirl'
+			opponent['reaction'] = 'Swirl'
 		
 		if player['attacks'][attack][3] == 'geo':
 			elementalReaction = 'crystallize'
+			opponent['reaction'] = 'Crystallize'
 	
 	elif opponent['status'] == 'pyro':
 		if player['attacks'][attack][3] == 'hydro':
 			elementalReaction = 'vaporizestrong'
+			opponent['reaction'] = 'Vaporize'
 			
 		if player['attacks'][attack][3] == 'cryo':
 			elementalReaction = 'meltweak'
+			opponent['reaction'] = 'Melt'
 			
 		if player['attacks'][attack][3] == 'electro':
 			elementalReaction = 'overload'
+			opponent['reaction'] = 'Overload'
 		
 		if player['attacks'][attack][3] == 'dendro':
 			elementalReaction = 'burning'
+			opponent['reaction'] = 'Burning'
 		
 		if player['attacks'][attack][3] == 'anemo':
 			elementalReaction = 'swirl'
+			opponent['reaction'] = 'Swirl'
 		
 		if player['attacks'][attack][3] == 'geo':
 			elementalReaction = 'crystallize'
+			opponent['reaction'] = 'Crystallize'
 	
 	elif opponent['status'] == 'electro':
 		if player['attacks'][attack][3] == 'hydro':
 			elementalReaction = 'electrocharged'
+			opponent['reaction'] = 'Electro Charged'
 			
 		if player['attacks'][attack][3] == 'cryo':
 			elementalReaction = 'superconduct'
+			opponent['reaction'] = 'Superconduct'
 			
 		if player['attacks'][attack][3] == 'pyro':
 			elementalReaction = 'overload'
+			opponent['reaction'] = 'Overload'
 		
 		if player['attacks'][attack][3] == 'anemo':
 			elementalReaction = 'swirl'
+			opponent['reaction'] = 'Swirl'
 		
 		if player['attacks'][attack][3] == 'geo':
 			elementalReaction = 'crystallize'
+			opponent['reaction'] = 'Crystallize'
 	
 	elif opponent['status'] == 'cryo':
 		if player['attacks'][attack][3] == 'hydro':
 			elementalReaction = 'freeze'
+			opponent['reaction'] = 'Freeze'
 			
 		if player['attacks'][attack][3] == 'electro':
 			elementalReaction = 'superconduct'
+			opponent['reaction'] = 'Superconduct'
 			
 		if player['attacks'][attack][3] == 'pyro':
 			elementalReaction = 'meltstrong'
+			opponent['reaction'] = 'Melt'
 		
 		if player['attacks'][attack][3] == 'anemo':
 			elementalReaction = 'swirl'
+			opponent['reaction'] = 'Swirl'
 		
 		if player['attacks'][attack][3] == 'geo':
 			elementalReaction = 'crystallize'
+			opponent['reaction'] = 'Crystallize'
 	
 	if opponent['status'] == player['attacks'][attack][3]:
 		elementalReaction = 'neutral'
 	
-	return elementalReaction
+	return elementalReaction 
 
 # Utfører elemental reactions
 def ELMreactions(player, opponent, attack, ElementalReaction):
@@ -323,6 +359,11 @@ class mainScene(scene.Scene):
 		self.attackmissedtext = scene.LabelNode('', font=('Avenir', 50), color='#000', position=(self.size.w/2, self.size.h/2), parent=self)
 		
 		self.critHit = scene.LabelNode('', font=('Avenir', 50), color='#000', position=(self.size.w/2, self.size.h/2), parent=self)
+		
+		# Reaction texts
+		
+		self.player1reaction = scene.LabelNode('', font=('Avenir', 25), color='#000', position= (200, 500), parent = self, anchor_point=(0.5,1))
+		self.player2reaction = scene.LabelNode('', font=('Avenir', 25), color='#000', position= (850, 500), parent = self, anchor_point =(0.5,1))
 		
 		# Elements sprites
 		
@@ -500,6 +541,14 @@ class mainScene(scene.Scene):
 					# Fjerner element etter en tid
 					if player1['statustimer'] <= 0:
 						player1['status'] = ''
+					
+					if player1['reaction'] != '':
+						self.player1reaction.text = '{}'.format(player1['reaction'])
+					if player2['reaction'] != '':
+						self.player2reaction.text = ''
+						player2['reaction'] = ''
+						
+						
 						
 				
 				# Spiller om det er P1 sin tur
@@ -523,6 +572,13 @@ class mainScene(scene.Scene):
 					# Fjerner element etter en tid
 					if player2['statustimer'] <= 0:
 						player2['status'] = ''
+					
+					if player2['reaction'] != '':
+						self.player2reaction.text = '{}'.format(player2['reaction'])
+					if player1['reaction'] != '':
+						self.player1reaction.text = ''
+						player1['reaction'] = ''
+						
 		
 			#
 			# Attack 2
@@ -552,7 +608,12 @@ class mainScene(scene.Scene):
 					# Fjerner element etter en tid
 					if player1['statustimer'] <= 0:
 						player1['status'] = ''
-						
+					
+					if player1['reaction'] != '':
+						self.player1reaction.text = '{}'.format(player1['reaction'])
+					if player2['reaction'] != '':
+						self.player2reaction.text = ''
+						player2['reaction'] = ''
 				
 				# Spiller om det er P1 sin tur
 				else:				
@@ -575,6 +636,12 @@ class mainScene(scene.Scene):
 					# Fjerner element etter en tid
 					if player2['statustimer'] <= 0:
 						player2['status'] = ''
+					
+					if player2['reaction'] != '':
+						self.player2reaction.text = '{}'.format(player2['reaction'])
+					if player1['reaction'] != '':
+						self.player1reaction.text = ''
+						player1['reaction'] = ''
 			
 			#
 			# Attack 3
@@ -604,6 +671,12 @@ class mainScene(scene.Scene):
 					# Fjerner element etter en tid
 					if player1['statustimer'] <= 0:
 						player1['status'] = ''
+					
+					if player1['reaction'] != '':
+						self.player1reaction.text = '{}'.format(player1['reaction'])
+					if player2['reaction'] != '':
+						self.player2reaction.text = ''
+						player2['reaction'] = ''
 						
 				
 				# Spiller om det er P1 sin tur
@@ -627,6 +700,12 @@ class mainScene(scene.Scene):
 					# Fjerner element etter en tid
 					if player2['statustimer'] <= 0:
 						player2['status'] = ''
+					
+					if player2['reaction'] != '':
+						self.player2reaction.text = '{}'.format(player2['reaction'])
+					if player1['reaction'] != '':
+						self.player1reaction.text = ''
+						player1['reaction'] = ''
 		
 		# Dead check
 		
