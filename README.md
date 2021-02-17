@@ -17,6 +17,7 @@ On the topleft corner of the screen it will display whose turn it is.
 Note that when a character name is used, brackets with the players # will also be there in parenthesis to clarify further.
 #### Core Game Mechanics
 All characters have 3 offensive attacks and 1 non damaging move.
+Critical hits deal 2x damage.
 Primary and Secondary Skill will always apply an element to the opponent.
 The applied element lasts for 3 entire rounds.
 If another element is applied to a coexisting element, then an elemental reaction will occour.
@@ -66,4 +67,74 @@ The order of element infliction does matter. This is for instance described in t
   - Normal Attack: 80 base power, 90% accuracy, Physical
   - Primary Skill: 90 base power, 80% accuracy, Anemo
   - Secondary Skill: 60 base power, 100% accuracy, Geo
-  - Utility: Grants Lumine +50 Attack and has a 5% chance of failing
+  - Utility: (Swords Dance) Grants Lumine +50 Attack and has a 5% chance of failing
+
+##### Aether
+- HP: 1750
+- ATK: 30
+- ELEATK: 20
+- DEF: 60
+- ELERES: 60
+- SPE: 80
+- Crit Rate: 0
+- Attacks:
+  - Normal Attack: 100 base power, 90% accuracy, Physical
+  - Primary Skill: 90 base power, 80% accuracy, Geo
+  - Secondary Skill: 60 base power, 90% accuracy, Anemo
+  - Utility: (Defense Curl) Grants Aether +50 Defense and has a 5% chance of failing
+
+##### Childe
+- HP: 1250
+- ATK: 50
+- ELEATK: 25
+- DEF: 50
+- ELERES: 50
+- SPE: 95
+- Crit Rate: 10
+- Attacks:
+  - Normal Attack: 70 base power, 90% accuracy, Physical
+  - Primary Skill: 80 base power, 80% accuracy, Hydro
+  - Secondary Skill: 100 base power, 90% accuracy, Electro
+  - Utility: (Delusion) Grants Childe +50 Attack and +50 Elemental Attack
+
+##### Madame Ping
+- HP: 1000
+- ATK: 25
+- ELEATK: 75
+- DEF: 50
+- ELERES: 50
+- SPE: 50
+- Crit Rate: 0
+- Attacks:
+  - Normal Attack: 50 base power, 90% accuracy, Physical
+  - Primary Skill: 90 base power, 95% accuracy, Dendro
+  - Secondary Skill: 120 base power, 90% accuracy, Pyro
+  - Utility: (Tea Drink) Grants Madame Ping +250 HP
+
+##### Razor
+- HP: 1500
+- ATK: 50
+- ELEATK: 50
+- DEF: 50
+- ELERES: 50
+- SPE: 80
+- Crit Rate: 10
+- Attacks:
+  - Normal Attack: 60 base power, 90% accuracy, Physical
+  - Primary Skill: 100 base power, 95% accuracy, Electro
+  - Secondary Skill: 80 base power, 85% accuracy, Cryo
+  - Utility: (Elemental Burst) Grants Razor +50 of Defense, Attack, Elemental Resistance and Elemental Attack
+
+##### Klee & Co
+- HP: 1250
+- ATK: 25
+- ELEATK: 75
+- DEF: 50
+- ELERES: 50
+- SPE: 110
+- Crit Rate: 25
+- Attacks:
+  - Normal Attack: 80 base power, 90% accuracy, Pyro
+  - Primary Skill: 80 base power, 90% accuracy, Electro
+  - Secondary Skill: 80 base power, 90% accuracy, Cryo
+  - Utility: (Elemental Spores) Decreases opponent's Elemental Resistance
