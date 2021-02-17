@@ -56,10 +56,10 @@ playablecharacters = [{
 # Viser antallet spillbare karakterer
 antallCharacters = len(playablecharacters)
 # Velger en tilfeldig karakter for hver spiller
-#player1 = dict(playablecharacters[random.randint(0,antallCharacters-1)])
-#player2 = dict(playablecharacters[random.randint(0,antallCharacters-1)])
-player1 = dict(playablecharacters[0])
-player2 = dict(playablecharacters[1])
+player1 = dict(playablecharacters[random.randint(0,antallCharacters-1)])
+player2 = dict(playablecharacters[random.randint(0,antallCharacters-1)])
+#player1 = dict(playablecharacters[0])
+#player2 = dict(playablecharacters[1])
 
 attackboxsizex, attackboxsizey = (200, 100) # Universal størrelse på attackbox
 attack1x, attack1y = (56, 56) # Koordinater på bottomleft corner av boxene
