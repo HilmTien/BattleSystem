@@ -5,17 +5,17 @@ Our final project in our programming classes was to create a program freely of c
 
 It is a relatively simple battle system composed of characters and various attacks, heavily inspired by Pokemon Showdown.
 Other core elements such as elements and reactions are inspired by Genshin Impact.
-### Documentation
-#### Prerequisites
+## Documentation
+### Prerequisites
 This program is made in Pythonista on iOS, and the scene module will only work on that application. Tested and developed with Python 3.7.
 It's designed to only work on iPad (7th Generation) on landscape mode (Pythonista doesn't allow forced orientation) and with no split screen. However it may work on other devices with the same resolution.
-#### UI and Layout
+### UI and Layout
 There are 4 buttons presented to you upon starting the program.
 On all buttons will there say a short description of what it'll do. The four main (but changeable) labels are 'Normal Attack', 'Primary Skill', 'Secondary Skill' and 'Utility'. Upon pressing one of the buttons, the current active character will perform that attack on the opponent.
 If you press on the area of your character's sprite, then the stats of that character will show up. Pressing anywhere else will remove this text.
 On the topleft corner of the screen it will display whose turn it is.
 Note that when a character name is used, brackets with the players # will also be there in parenthesis to clarify further.
-#### Core Game Mechanics
+### Core Game Mechanics
 All characters have 3 offensive attacks and 1 non damaging move.
 Critical hits deal 2x damage.
 Physical attacks, most often associated with Normal Attack, will not apply an element and will use the character's ATK and the opponents DEF stat.
@@ -24,7 +24,7 @@ The applied element lasts for 3 entire rounds.
 If another element is applied to a coexisting element, then an elemental reaction will occour.
 These reactions are described in this image: https://i.imgur.com/VjlcUdM.png
 The reactions can be decribed as following:
-##### Elemental Reactions
+#### Elemental Reactions
 - Pyro + Hydro = Vaporize 
   - The attack triggering the reaction has a multiplier of 2 or 1.5
   - The multiplier will be 2 if Hydro was the triggering element
@@ -54,9 +54,9 @@ The reactions can be decribed as following:
 
 The order of element infliction does matter. This is for instance described in the Melt and Vaporize reactions. If Anemo is the initial element, then the reaction will always be Swirl, and the same counts for Geo. Anemo + Geo = Swirl / Geo + Anemo = Crystallize.
 
-#### Characters
+### Characters
 
-##### Lumine
+#### Lumine
 - HP: 1000
 - ATK: 70
 - ELEATK: 100
@@ -70,7 +70,7 @@ The order of element infliction does matter. This is for instance described in t
   - Secondary Skill: 60 base power, 100% accuracy, Geo
   - Utility: (Swords Dance) Grants Lumine +50 Attack and has a 5% chance of failing
 
-##### Aether
+#### Aether
 - HP: 1750
 - ATK: 30
 - ELEATK: 20
@@ -84,7 +84,7 @@ The order of element infliction does matter. This is for instance described in t
   - Secondary Skill: 60 base power, 90% accuracy, Anemo
   - Utility: (Defense Curl) Grants Aether +50 Defense and has a 5% chance of failing
 
-##### Childe
+#### Childe
 - HP: 1250
 - ATK: 50
 - ELEATK: 25
@@ -98,7 +98,7 @@ The order of element infliction does matter. This is for instance described in t
   - Secondary Skill: 100 base power, 90% accuracy, Electro
   - Utility: (Delusion) Grants Childe +50 Attack and +50 Elemental Attack
 
-##### Madame Ping
+#### Madame Ping
 - HP: 1000
 - ATK: 25
 - ELEATK: 75
@@ -112,7 +112,7 @@ The order of element infliction does matter. This is for instance described in t
   - Secondary Skill: 120 base power, 90% accuracy, Pyro
   - Utility: (Tea Drink) Grants Madame Ping +250 HP
 
-##### Razor
+#### Razor
 - HP: 1500
 - ATK: 50
 - ELEATK: 50
@@ -126,7 +126,7 @@ The order of element infliction does matter. This is for instance described in t
   - Secondary Skill: 80 base power, 85% accuracy, Cryo
   - Utility: (Elemental Burst) Grants Razor +50 of Defense, Attack, Elemental Resistance and Elemental Attack
 
-##### Klee & Co
+#### Klee & Co
 - HP: 1250
 - ATK: 25
 - ELEATK: 75
