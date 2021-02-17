@@ -361,7 +361,8 @@ def DMGcalc(player, opponent, attack): # player og opponent er i dictionary form
 			else:
 				ElementalReaction = ELMreactionCheck(player,opponent,attack)
 				DMGdealt = ELMreactions(player, opponent, attack, ElementalReaction)
-		else:
+
+      else:
 			
 			# Utiliy attacks
 			DMGdealt = 0
