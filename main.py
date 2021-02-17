@@ -115,7 +115,7 @@ playablecharacters = [{
 	'HP': 1250,
 	'MHP': 1250,
 	'ATK': 25,
-	'ELEATK': 100,
+	'ELEATK': 75,
 	'DEF': 50,
 	'ELERES': 50,
 	'SPE': 110,
@@ -127,7 +127,7 @@ playablecharacters = [{
 		'attack1': (80, 90, 'Normal Attack', 'pyro'),
 		'attack2': (80, 90, 'Primary Skill', 'electro'),
 		'attack3': (80, 90, 'Secondary Skill', 'cryo'),
-		'attack4': (25, 100, 'Utility', 'utility', 'eleresdown', 'Elemental Spores')
+		'attack4': (1.3, 100, 'Utility', 'utility', 'eleresdown', 'Elemental Spores')
 	}
 }] # Mulighet til å legge til flere karakterer rett før ]
 
@@ -160,7 +160,7 @@ info1tr = (200, 650)
 info2bl = (750, 550)
 info2tr = (850, 650)
 
-playerstats = ['name', 'ATK', 'DEF', 'ELEATK', 'ELERES', 'SPE', 'CRITrate', 'HP', 'MHP', 'attacks']
+playerstats = ['name', 'ATK', 'DEF', 'ELEATK', 'ELERES', 'SPE', 'CRITrate', 'HP', 'MHP']
 
 #
 # FUNKSJONER (F.EKS. BATTLE MECHANICS)
@@ -324,7 +324,7 @@ def ELMreactions(player, opponent, attack, ElementalReaction):
 			opponent['ELERES'] = (opponent['ELERES']/3) * 2
 			DMGdealt = (player['ELEATK']/opponent['ELERES']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
 		elif ElementalReaction == 'overload':
-			DMGdealt = player['ELEATK'] * player['attacks'][attack][0] * (random.randint(8, 12)/10)
+			DMGdealt = player['ELEATK'] * player['attacks'][attack][0] * 0.05
 		elif ElementalReaction == 'freeze':
 			opponent['isFrozenRounds'] = 4
 			DMGdealt = (player['ELEATK']/opponent['ELERES']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
@@ -380,7 +380,10 @@ def DMGcalc(player, opponent, attack): # player og opponent er i dictionary form
 				player['DEF'] += player['attacks'][attack][0]
 				player['ELERES'] += player['attacks'][attack][0]
 			elif player['attacks'][attack][4] == 'eleresdown':
-				opponent['ELERES'] -= player['attacks'][attack][0]
+				opponent['ELERES'] /= player['attacks'][attack][0]
+			
+			if opponent['ELERES'] <= 0:
+				opponent['ELERES'] = 1
 				
 	else:
 		DMGdealt = (player['ATK']/opponent['DEF']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
@@ -893,10 +896,10 @@ class mainScene(scene.Scene):
 				
 				for key in player1:
 					if key in playerstats:
-						if key != 'HP':
-							player1statsraw.append(player1[key])
-						else:
+						if key != 'name':
 							player1statsraw.append(math.floor(player1[key]))
+						else:
+							player1statsraw.append(player1[key])
 				
 				export1 += 'Name: {}\nHP: {}/{}\nATK: {}\nELEATK: {}\nDEF: {}\nELERES: {}\nSpeed: {}\nCrit Rate: {}'.format(*player1statsraw)
 				
@@ -909,10 +912,10 @@ class mainScene(scene.Scene):
 				
 				for key in player2:
 					if key in playerstats:
-						if key != 'HP':
-							player2statsraw.append(player2[key])
-						else:
+						if key != 'name':
 							player2statsraw.append(math.floor(player2[key]))
+						else:
+							player2statsraw.append(player2[key])
 				
 				export2 += 'Name: {}\nHP: {}/{}\nATK: {}\nELEATK: {}\nDEF: {}\nELERES: {}\nSpeed: {}\nCrit Rate: {}'.format(*player2statsraw)
 				
