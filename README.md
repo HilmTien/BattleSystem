@@ -18,7 +18,8 @@ Note that when a character name is used, brackets with the players # will also b
 #### Core Game Mechanics
 All characters have 3 offensive attacks and 1 non damaging move.
 Critical hits deal 2x damage.
-Primary and Secondary Skill will always apply an element to the opponent.
+Physical attacks, most often associated with Normal Attack, will not apply an element and will use the character's ATK and the opponents DEF stat.
+Elemental attacks, which always lie in Primary / Secondary Skill, will use the character's ELEATK and the opponents ELERES stat. They also apply an element (not random, can be seen in the 'Characters' section below) to the opponent.
 The applied element lasts for 3 entire rounds.
 If another element is applied to a coexisting element, then an elemental reaction will occour.
 These reactions are described in this image: https://i.imgur.com/VjlcUdM.png
