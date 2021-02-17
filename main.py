@@ -3,7 +3,7 @@
 
 # Enkelt battle system utviklet av Tien og Vincent (2021)
 
-import console, scene, random, sys, time
+import console, scene, random, sys, time, math
 
 #
 # PLAYABLE CHARACTERS
@@ -25,8 +25,8 @@ playablecharacters = [{
 	'reaction' : '',
 	'attacks': {
 		'attack1': (80, 90, 'Normal Attack', 'physical'), # (atk, accuracy), senere implement element!
-		'attack2': (90, 80, 'Primary Skill', 'electro'),
-		'attack3': (60, 100, 'Secondary Skill', 'hydro'),
+		'attack2': (90, 80, 'Primary Skill', 'anemo'),
+		'attack3': (60, 100, 'Secondary Skill', 'geo'),
 		'attack4': (50, 95, 'Utility', 'utility', 'atkup', 'Swords Dance')
 	}
 }, {
@@ -41,13 +41,93 @@ playablecharacters = [{
 	'SPE': 80,
 	'CRITrate': 0,
 	'status': '',
-	'statustimer': 3,
+	'statustimer': 0,
 	'reaction' : '',
 	'attacks': {
 		'attack1': (100, 90, 'Normal Attack', 'physical'),
 		'attack2': (90, 80, 'Primary Skill', 'geo'),
 		'attack3': (60, 90, 'Secondary Skill', 'anemo'),
 		'attack4': (50, 95, 'Utility', 'utility', 'defup', 'Defense Curl')
+	}
+}, {
+	'name': 'Childe',
+	'sprite': 'emj:Runner',
+	'HP': 1250,
+	'MHP': 1250,
+	'ATK': 50,
+	'ELEATK': 25,
+	'DEF': 50,
+	'ELERES': 50,
+	'SPE': 95,
+	'CRITrate': 10,
+	'status': '',
+	'statustimer': 0,
+	'reaction' : '',
+	'attacks': {
+		'attack1': (70, 90, 'Normal Attack', 'physical'),
+		'attack2': (80, 80, 'Primary Skill', 'hydro'),
+		'attack3': (100, 90, 'Secondary Skill', 'electro'),
+		'attack4': (50, 100, 'Utility', 'utility', 'atkeleatkup', 'Delusion')
+	}
+}, {
+	'name': 'Madame Ping',
+	'sprite': 'emj:Older_Woman',
+	'HP': 1000,
+	'MHP': 1000,
+	'ATK': 25,
+	'ELEATK': 75,
+	'DEF': 50,
+	'ELERES': 50,
+	'SPE': 50,
+	'CRITrate': 0,
+	'status': '',
+	'statustimer': 0,
+	'reaction' : '',
+	'attacks': {
+		'attack1': (50, 90, 'Normal Attack', 'physical'),
+		'attack2': (90, 95, 'Primary Skill', 'dendro'),
+		'attack3': (120, 90, 'Secondary Skill', 'pyro'),
+		'attack4': (250, 100, 'Utility', 'utility', 'hpup', 'Tea Drink')
+	}
+}, {
+	'name': 'Razor',
+	'sprite': 'emj:Wolf_Face',
+	'HP': 1500,
+	'MHP': 1500,
+	'ATK': 50,
+	'ELEATK': 50,
+	'DEF': 50,
+	'ELERES': 50,
+	'SPE': 80,
+	'CRITrate': 10,
+	'status': '',
+	'statustimer': 0,
+	'reaction' : '',
+	'attacks': {
+		'attack1': (60, 90, 'Normal Attack', 'physical'),
+		'attack2': (100, 95, 'Primary Skill', 'electro'),
+		'attack3': (80, 85, 'Secondary Skill', 'cryo'),
+		'attack4': (40, 100, 'Utility', 'utility', 'basicup', 'Elemental Burst')
+	}
+}, {
+	'name': 'Klee & Co',
+	'sprite': 'emj:Man_And_Woman',
+	'HP': 1250,
+	'MHP': 1250,
+	'ATK': 25,
+	'ELEATK': 100,
+	'DEF': 50,
+	'ELERES': 50,
+	'SPE': 110,
+	'CRITrate': 25,
+	'status': '',
+	'statustimer': 0,
+	'reaction' : '',
+	'attacks': {
+		'attack1': (80, 90, 'Normal Attack', 'pyro'),
+		'attack2': (80, 90, 'Primary Skill', 'electro'),
+		'attack3': (80, 90, 'Secondary Skill', 'cryo'),
+		'attack4': (25, 100, 'Utility', 'utility', 'eleresdown', 'Elemental Spores')
 	}
 }] # Mulighet til å legge til flere karakterer rett før ]
 
@@ -74,11 +154,13 @@ attack2x, attack2y = (312, 56)
 attack3x, attack3y = (568, 56)
 attack4x, attack4y = (824, 56)
 
-info1bl = (100, 550)#(150, 800, 600)
-info1tr = ()
+info1bl = (100, 550) #(150, 800, 600)
+info1tr = (200, 650)
 
 info2bl = (750, 550)
-info2tr = ()
+info2tr = (850, 650)
+
+playerstats = ['name', 'ATK', 'DEF', 'ELEATK', 'ELERES', 'SPE', 'CRITrate', 'HP', 'MHP', 'attacks']
 
 #
 # FUNKSJONER (F.EKS. BATTLE MECHANICS)
@@ -280,12 +362,26 @@ def DMGcalc(player, opponent, attack): # player og opponent er i dictionary form
 				ElementalReaction = ELMreactionCheck(player,opponent,attack)
 				DMGdealt = ELMreactions(player, opponent, attack, ElementalReaction)
 		else:
+			
+			# Utiliy attacks
 			DMGdealt = 0
 			if player['attacks'][attack][4] == 'atkup':
 				player['ATK'] += player['attacks'][attack][0]
 			elif player['attacks'][attack][4] == 'defup':
 				player['DEF'] += player['attacks'][attack][0]
-		
+			elif player['attacks'][attack][4] == 'atkeleatkup':
+				player['ATK'] += player['attacks'][attack][0]
+				player['ELEATK'] += player['attacks'][attack][0]
+			elif player['attacks'][attack][4] == 'hpup':
+				player['HP'] += player['attacks'][attack][0]
+			elif player['attacks'][attack][4] == 'basicup':
+				player['ATK'] += player['attacks'][attack][0]
+				player['ELEATK'] += player['attacks'][attack][0]
+				player['DEF'] += player['attacks'][attack][0]
+				player['ELERES'] += player['attacks'][attack][0]
+			elif player['attacks'][attack][4] == 'eleresdown':
+				opponent['ELERES'] -= player['attacks'][attack][0]
+				
 	else:
 		DMGdealt = (player['ATK']/opponent['DEF']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
 		
@@ -410,6 +506,11 @@ class mainScene(scene.Scene):
 		# Elemental reaction Labels
 		self.Player1DOT = scene.LabelNode('', font=('Avenir', 25), color='#000', position=(225, 600), parent=self, anchor_point=(0, 0))
 		self.Player2DOT = scene.LabelNode('', font=('Avenir', 25), color='#000', position=(875, 600), parent=self, anchor_point=(0, 0))
+		
+		# Player stats label
+		
+		self.player1stats = scene.LabelNode('', font=('Avenir', 15), color='#000', position=(200, 400), parent=self, anchor_point=(0.5, 1))
+		self.player2stats = scene.LabelNode('', font=('Avenir', 15), color='#000', position=(850, 400), parent=self, anchor_point=(0.5, 1))
 	
 	def draw(self):
 		
@@ -526,7 +627,11 @@ class mainScene(scene.Scene):
 	
 	
 	
-	def touch_began(self, touch):				
+	def touch_began(self, touch):
+		
+		self.player1stats.text = ''
+		self.player2stats.text = ''
+		
 		self.attackmissedtext.text = ''
 		self.critHit.text = ''
 		# Deaktiverer Normal Attack hvis en av spillerene er døde
@@ -781,7 +886,37 @@ class mainScene(scene.Scene):
 					if player1['reaction'] != '':
 						player1['reaction'] = ''
 		
-			#elif infox
+			elif info1bl[0] < touch.location.x < info1tr[0] and info1bl[1] < touch.location.y < info1tr[1]:
+				
+				player1statsraw = []
+				export1 = ''
+				
+				for key in player1:
+					if key in playerstats:
+						if key != 'HP':
+							player1statsraw.append(player1[key])
+						else:
+							player1statsraw.append(math.floor(player1[key]))
+				
+				export1 += 'Name: {}\nHP: {}/{}\nATK: {}\nELEATK: {}\nDEF: {}\nELERES: {}\nSpeed: {}\nCrit Rate: {}'.format(*player1statsraw)
+				
+				self.player1stats.text = export1
+			
+			elif info2bl[0] < touch.location.x < info2tr[0] and info2bl[1] < touch.location.y < info2tr[1]:
+				
+				player2statsraw = []
+				export2 = ''
+				
+				for key in player2:
+					if key in playerstats:
+						if key != 'HP':
+							player2statsraw.append(player2[key])
+						else:
+							player2statsraw.append(math.floor(player2[key]))
+				
+				export2 += 'Name: {}\nHP: {}/{}\nATK: {}\nELEATK: {}\nDEF: {}\nELERES: {}\nSpeed: {}\nCrit Rate: {}'.format(*player2statsraw)
+				
+				self.player2stats.text = export2
 		
 		# Dead check
 		
