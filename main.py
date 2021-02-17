@@ -3,7 +3,7 @@
 
 # Enkelt battle system utviklet av Tien og Vincent (2021)
 
-import console, scene, random, sys, time
+import console, scene, random, sys, time, math
 
 #
 # PLAYABLE CHARACTERS
@@ -26,7 +26,8 @@ playablecharacters = [{
 	'attacks': {
 		'attack1': (80, 90, 'Normal Attack', 'physical'), # (atk, accuracy), senere implement element!
 		'attack2': (90, 80, 'Primary Skill', 'anemo'),
-		'attack3': (60, 100, 'Secondary Skill', 'geo')
+		'attack3': (60, 100, 'Secondary Skill', 'geo'),
+		'attack4': (50, 95, 'Utility', 'utility', 'atkup', 'Swords Dance')
 	}
 }, {
 	'name': 'Aether',
@@ -40,12 +41,93 @@ playablecharacters = [{
 	'SPE': 80,
 	'CRITrate': 0,
 	'status': '',
-	'statustimer': 3,
+	'statustimer': 0,
 	'reaction' : '',
 	'attacks': {
-		'attack1': (80, 90, 'Normal Attack', 'physical'),
+		'attack1': (100, 90, 'Normal Attack', 'physical'),
 		'attack2': (90, 80, 'Primary Skill', 'geo'),
-		'attack3': (60, 90, 'Secondary Skill', 'anemo')
+		'attack3': (60, 90, 'Secondary Skill', 'anemo'),
+		'attack4': (50, 95, 'Utility', 'utility', 'defup', 'Defense Curl')
+	}
+}, {
+	'name': 'Childe',
+	'sprite': 'emj:Runner',
+	'HP': 1250,
+	'MHP': 1250,
+	'ATK': 50,
+	'ELEATK': 25,
+	'DEF': 50,
+	'ELERES': 50,
+	'SPE': 95,
+	'CRITrate': 10,
+	'status': '',
+	'statustimer': 0,
+	'reaction' : '',
+	'attacks': {
+		'attack1': (70, 90, 'Normal Attack', 'physical'),
+		'attack2': (80, 80, 'Primary Skill', 'hydro'),
+		'attack3': (100, 90, 'Secondary Skill', 'electro'),
+		'attack4': (50, 100, 'Utility', 'utility', 'atkeleatkup', 'Delusion')
+	}
+}, {
+	'name': 'Madame Ping',
+	'sprite': 'emj:Older_Woman',
+	'HP': 1000,
+	'MHP': 1000,
+	'ATK': 25,
+	'ELEATK': 75,
+	'DEF': 50,
+	'ELERES': 50,
+	'SPE': 50,
+	'CRITrate': 0,
+	'status': '',
+	'statustimer': 0,
+	'reaction' : '',
+	'attacks': {
+		'attack1': (50, 90, 'Normal Attack', 'physical'),
+		'attack2': (90, 95, 'Primary Skill', 'dendro'),
+		'attack3': (120, 90, 'Secondary Skill', 'pyro'),
+		'attack4': (250, 100, 'Utility', 'utility', 'hpup', 'Tea Drink')
+	}
+}, {
+	'name': 'Razor',
+	'sprite': 'emj:Wolf_Face',
+	'HP': 1500,
+	'MHP': 1500,
+	'ATK': 50,
+	'ELEATK': 50,
+	'DEF': 50,
+	'ELERES': 50,
+	'SPE': 80,
+	'CRITrate': 10,
+	'status': '',
+	'statustimer': 0,
+	'reaction' : '',
+	'attacks': {
+		'attack1': (60, 90, 'Normal Attack', 'physical'),
+		'attack2': (100, 95, 'Primary Skill', 'electro'),
+		'attack3': (80, 85, 'Secondary Skill', 'cryo'),
+		'attack4': (40, 100, 'Utility', 'utility', 'basicup', 'Elemental Burst')
+	}
+}, {
+	'name': 'Klee & Co',
+	'sprite': 'emj:Man_And_Woman',
+	'HP': 1250,
+	'MHP': 1250,
+	'ATK': 25,
+	'ELEATK': 100,
+	'DEF': 50,
+	'ELERES': 50,
+	'SPE': 110,
+	'CRITrate': 25,
+	'status': '',
+	'statustimer': 0,
+	'reaction' : '',
+	'attacks': {
+		'attack1': (80, 90, 'Normal Attack', 'pyro'),
+		'attack2': (80, 90, 'Primary Skill', 'electro'),
+		'attack3': (80, 90, 'Secondary Skill', 'cryo'),
+		'attack4': (25, 100, 'Utility', 'utility', 'eleresdown', 'Elemental Spores')
 	}
 }] # Mulighet til å legge til flere karakterer rett før ]
 
@@ -58,6 +140,11 @@ antallCharacters = len(playablecharacters)
 # Velger en tilfeldig karakter for hver spiller
 player1 = dict(playablecharacters[random.randint(0,antallCharacters-1)])
 player2 = dict(playablecharacters[random.randint(0,antallCharacters-1)])
+
+while player1 == player2:
+	player1 = dict(playablecharacters[random.randint(0,antallCharacters-1)])
+	player2 = dict(playablecharacters[random.randint(0,antallCharacters-1)])
+
 #player1 = dict(playablecharacters[0])
 #player2 = dict(playablecharacters[1])
 
@@ -67,7 +154,13 @@ attack2x, attack2y = (312, 56)
 attack3x, attack3y = (568, 56)
 attack4x, attack4y = (824, 56)
 
+info1bl = (100, 550) #(150, 800, 600)
+info1tr = (200, 650)
 
+info2bl = (750, 550)
+info2tr = (850, 650)
+
+playerstats = ['name', 'ATK', 'DEF', 'ELEATK', 'ELERES', 'SPE', 'CRITrate', 'HP', 'MHP', 'attacks']
 
 #
 # FUNKSJONER (F.EKS. BATTLE MECHANICS)
@@ -242,7 +335,9 @@ def ELMreactions(player, opponent, attack, ElementalReaction):
 			opponent['isElectroChargedRounds'] = 6
 			DMGdealt = (player['ELEATK']/opponent['ELERES']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
 		elif ElementalReaction == 'crystallize':
-			player['HP'] += player['DEF'] + player['ELERES']
+			player['DEF'] += 15
+			player['ELERES'] += 15
+			player['HP'] += player['DEF'] + player['ELERES'] + (player['MHP']/20)
 			DMGdealt = (player['ELEATK']/opponent['ELERES']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
 			
 		# Fjerner element etter reaction
@@ -257,15 +352,37 @@ def DMGcalc(player, opponent, attack): # player og opponent er i dictionary form
 	# Elemetal check
 	
 	if player['attacks'][attack][3] != 'physical':
-		if opponent['status'] == '':
-			opponent['status'] = player['attacks'][attack][3] # Applyer element til enemy
-			opponent['statustimer'] = 4
-			DMGdealt = (player['ELEATK']/opponent['ELERES']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
-		
-		else:
-			ElementalReaction = ELMreactionCheck(player,opponent,attack)
-			DMGdealt = ELMreactions(player, opponent, attack, ElementalReaction)
-		
+		if player['attacks'][attack][3] != 'utility':
+			if opponent['status'] == '':
+				opponent['status'] = player['attacks'][attack][3] # Applyer element til enemy
+				opponent['statustimer'] = 4
+				DMGdealt = (player['ELEATK']/opponent['ELERES']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
+			
+			else:
+				ElementalReaction = ELMreactionCheck(player,opponent,attack)
+				DMGdealt = ELMreactions(player, opponent, attack, ElementalReaction)
+
+      else:
+			
+			# Utiliy attacks
+			DMGdealt = 0
+			if player['attacks'][attack][4] == 'atkup':
+				player['ATK'] += player['attacks'][attack][0]
+			elif player['attacks'][attack][4] == 'defup':
+				player['DEF'] += player['attacks'][attack][0]
+			elif player['attacks'][attack][4] == 'atkeleatkup':
+				player['ATK'] += player['attacks'][attack][0]
+				player['ELEATK'] += player['attacks'][attack][0]
+			elif player['attacks'][attack][4] == 'hpup':
+				player['HP'] += player['attacks'][attack][0]
+			elif player['attacks'][attack][4] == 'basicup':
+				player['ATK'] += player['attacks'][attack][0]
+				player['ELEATK'] += player['attacks'][attack][0]
+				player['DEF'] += player['attacks'][attack][0]
+				player['ELERES'] += player['attacks'][attack][0]
+			elif player['attacks'][attack][4] == 'eleresdown':
+				opponent['ELERES'] -= player['attacks'][attack][0]
+				
 	else:
 		DMGdealt = (player['ATK']/opponent['DEF']) * player['attacks'][attack][0] * (random.randint(8, 12)/10)
 		
@@ -390,6 +507,11 @@ class mainScene(scene.Scene):
 		# Elemental reaction Labels
 		self.Player1DOT = scene.LabelNode('', font=('Avenir', 25), color='#000', position=(225, 600), parent=self, anchor_point=(0, 0))
 		self.Player2DOT = scene.LabelNode('', font=('Avenir', 25), color='#000', position=(875, 600), parent=self, anchor_point=(0, 0))
+		
+		# Player stats label
+		
+		self.player1stats = scene.LabelNode('', font=('Avenir', 15), color='#000', position=(200, 400), parent=self, anchor_point=(0.5, 1))
+		self.player2stats = scene.LabelNode('', font=('Avenir', 15), color='#000', position=(850, 400), parent=self, anchor_point=(0.5, 1))
 	
 	def draw(self):
 		
@@ -495,25 +617,29 @@ class mainScene(scene.Scene):
 			self.attack1label.text = player1['attacks']['attack1'][2]
 			self.attack1label2.text = player1['attacks']['attack2'][2]
 			self.attack1label3.text = player1['attacks']['attack3'][2]
-			#self.attack1label4.text = player1['attacks']['attack4'][2]
+			self.attack1label4.text = player1['attacks']['attack4'][2]
 		else:
 			self.attack1label.text = player2['attacks']['attack1'][2]
 			self.attack1label2.text = player2['attacks']['attack2'][2]
 			self.attack1label3.text = player2['attacks']['attack3'][2]
-			#self.attack1label4.text = player2['attacks']['attack4'][2]
+			self.attack1label4.text = player2['attacks']['attack4'][2]
 	
 	
 	
 	
 	
-	def touch_began(self, touch):				
+	def touch_began(self, touch):
+		
+		self.player1stats.text = ''
+		self.player2stats.text = ''
+		
 		self.attackmissedtext.text = ''
 		self.critHit.text = ''
 		# Deaktiverer Normal Attack hvis en av spillerene er døde
 		if self.Game_Over == False:
 			
 			#
-			# Attack 1
+			# Attack 1 (Normal Attack)
 			#
 			
 			if attack1x < touch.location.x < attack1x+attackboxsizex and attack1y < touch.location.y < attack1y+attackboxsizey: # Første black box eller attack
@@ -580,10 +706,10 @@ class mainScene(scene.Scene):
 						
 		
 			#
-			# Attack 2
+			# Attack 2 (Primary skill)
 			#
 		
-			if attack2x < touch.location.x < attack2x+attackboxsizex and attack2y < touch.location.y < attack2y+attackboxsizey: # Første black box eller attack
+			elif attack2x < touch.location.x < attack2x+attackboxsizex and attack2y < touch.location.y < attack2y+attackboxsizey: 
 				
 				accrng = random.randint(1, 100)
 				critrng = random.randint(1, 100)
@@ -643,10 +769,10 @@ class mainScene(scene.Scene):
 						player1['reaction'] = ''
 			
 			#
-			# Attack 3
+			# Attack 3 (Secondary Skill)
 			#
 		
-			if attack3x < touch.location.x < attack3x+attackboxsizex and attack3y < touch.location.y < attack3y+attackboxsizey: # Første black box eller attack
+			elif attack3x < touch.location.x < attack3x+attackboxsizex and attack3y < touch.location.y < attack3y+attackboxsizey: 
 				
 				accrng = random.randint(1, 100)
 				critrng = random.randint(1, 100)
@@ -705,6 +831,93 @@ class mainScene(scene.Scene):
 					if player1['reaction'] != '':
 						self.player1reaction.text = ''
 						player1['reaction'] = ''
+			
+			#
+			# Attack 4 (Utility)
+			#
+		
+			elif attack4x < touch.location.x < attack4x+attackboxsizex and attack4y < touch.location.y < attack4y+attackboxsizey:
+				
+				accrng = random.randint(1, 100)
+				
+				# Sjekker om det er P2 sin tur
+				if self.currentMover == 2:
+					if accrng < player2['attacks']['attack4'][1]: #Sjekker accuracy
+						player1['HP'] -= DMGcalc(player2, player1, 'attack4') #Dealer damage til P1/status effect
+						self.player2reaction.text = '{}'.format(player2['attacks']['attack4'][5])
+					else:
+						self.attackmissedtext.text = '(Player {}) {} failed!'.format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+					#Bytter tur tilbake til P1
+					self.currentMover = 1
+					self.playerturn.text = "(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+					# Ticker ned elemental status timer
+					if player1['statustimer'] != 0:
+						player1['statustimer'] -= 1
+					# Fjerner element etter en tid
+					if player1['statustimer'] <= 0:
+						player1['status'] = ''
+					
+					if player1['reaction'] != '':
+						self.player1reaction.text = '{}'.format(player1['reaction'])
+					if player2['reaction'] != '':
+						player2['reaction'] = ''
+						
+				
+				# Spiller om det er P1 sin tur
+				else:				
+					if accrng < player1['attacks']['attack4'][1]:
+						player2['HP'] -= DMGcalc(player1, player2, 'attack4')
+						#Dealer damage til P2/status effect
+						self.player1reaction.text = '{}'.format(player1['attacks']['attack4'][5])
+					else:
+						self.attackmissedtext.text = '(Player {}) {} failed!'.format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+						
+					#Bytter tur tilbake til P2
+					self.currentMover = 2
+					self.playerturn.text = "(Player {}) {}'s turn".format(self.currentMover, [player1, player2][self.currentMover-1]['name'])
+					# Ticker ned elemental status timer
+					if player2['statustimer'] != 0:
+						player2['statustimer'] -= 1
+					# Fjerner element etter en tid
+					if player2['statustimer'] <= 0:
+						player2['status'] = ''
+					
+					if player2['reaction'] != '':
+						self.player2reaction.text = '{}'.format(player2['reaction'])
+					if player1['reaction'] != '':
+						player1['reaction'] = ''
+		
+			elif info1bl[0] < touch.location.x < info1tr[0] and info1bl[1] < touch.location.y < info1tr[1]:
+				
+				player1statsraw = []
+				export1 = ''
+				
+				for key in player1:
+					if key in playerstats:
+						if key != 'HP':
+							player1statsraw.append(player1[key])
+						else:
+							player1statsraw.append(math.floor(player1[key]))
+				
+				export1 += 'Name: {}\nHP: {}/{}\nATK: {}\nELEATK: {}\nDEF: {}\nELERES: {}\nSpeed: {}\nCrit Rate: {}'.format(*player1statsraw)
+				
+				self.player1stats.text = export1
+			
+			elif info2bl[0] < touch.location.x < info2tr[0] and info2bl[1] < touch.location.y < info2tr[1]:
+				
+				player2statsraw = []
+				export2 = ''
+				
+				for key in player2:
+					if key in playerstats:
+						if key != 'HP':
+							player2statsraw.append(player2[key])
+						else:
+							player2statsraw.append(math.floor(player2[key]))
+				
+				export2 += 'Name: {}\nHP: {}/{}\nATK: {}\nELEATK: {}\nDEF: {}\nELERES: {}\nSpeed: {}\nCrit Rate: {}'.format(*player2statsraw)
+				
+				self.player2stats.text = export2
 		
 		# Dead check
 		
